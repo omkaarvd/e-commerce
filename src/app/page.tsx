@@ -39,7 +39,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
+      <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-12">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           High Quality Cotton Selection
         </h1>
@@ -75,7 +75,7 @@ export default function Home() {
         </div>
       </div>
 
-      <section className="pb-24 pt-6">
+      <section className="pb-12 pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
           {/* filters */}
           <div></div>
