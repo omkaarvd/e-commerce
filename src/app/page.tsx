@@ -3,6 +3,12 @@
 import Product from "@/components/products/product";
 import ProductSkeleton from "@/components/products/product-skeleton";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -10,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SelectProduct } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { ProductState } from "@/lib/validators/product-validator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { ChevronDown, Filter } from "lucide-react";
@@ -21,9 +28,33 @@ const SORT_OPTIONS = [
   { label: "Price: High to Low", value: "price-desc" },
 ] as const;
 
+const SUBCATEGORIES = [
+  { label: "T-Shirts", selected: true, href: "#" },
+  { label: "Hoodies", selected: false, href: "#" },
+  { label: "Sweatshirts", selected: false, href: "#" },
+  { label: "Accessories", selected: false, href: "#" },
+] as const;
+
+const COLORS_FILTERS = {
+  id: "color",
+  label: "Color",
+  options: [
+    { label: "White", value: "white" },
+    { label: "Beige", value: "beige" },
+    { label: "Blue", value: "blue" },
+    { label: "Green", value: "green" },
+    { label: "Purple", value: "purple" },
+  ],
+} as const;
+
+const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
+
 export default function Home() {
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<ProductState>({
     sort: "none",
+    color: ["beige", "blue", "green", "purple", "white"],
+    price: { is_custom: false, range: DEFAULT_CUSTOM_PRICE },
+    size: ["L", "M", "S"],
   });
 
   const { data: products } = useQuery({
@@ -36,6 +67,28 @@ export default function Home() {
       return data;
     },
   });
+
+  const applyArrayFilter = ({
+    category,
+    value,
+  }: {
+    category: keyof Omit<typeof filter, "price" | "sort">;
+    value: string;
+  }) => {
+    const isFilterExist = filter[category].includes(value as never);
+
+    if (isFilterExist) {
+      setFilter((prev) => ({
+        ...prev,
+        [category]: prev[category].filter((item) => item !== value),
+      }));
+    } else {
+      setFilter((prev) => ({
+        ...prev,
+        [category]: [...prev[category], value],
+      }));
+    }
+  };
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -78,7 +131,56 @@ export default function Home() {
       <section className="pb-12 pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
           {/* filters */}
-          <div></div>
+          <div className="hidden lg:block">
+            <ul className="space-y-4 border-b border-gray-200 pb-6 font-medium text-gray-900">
+              {SUBCATEGORIES.map((sub_category) => (
+                <li key={sub_category.label}>
+                  <button
+                    disabled={!sub_category.selected}
+                    className="disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {sub_category.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <Accordion type="multiple">
+              {/* Color filter */}
+              <AccordionItem value="color">
+                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
+                  <span className="font-medium text-gray-900">Color</span>
+                </AccordionTrigger>
+
+                <AccordionContent>
+                  <ul className="space-y-4">
+                    {COLORS_FILTERS.options.map((option, idx) => (
+                      <li key={option.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`color-${idx}`}
+                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          onChange={() => {
+                            applyArrayFilter({
+                              category: "color",
+                              value: option.value,
+                            });
+                          }}
+                          checked={filter.color.includes(option.value)}
+                        />
+                        <label
+                          htmlFor={`color-${idx}`}
+                          className="ml-3 text-gray-600 text-sm"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
 
           {/* product grid */}
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
