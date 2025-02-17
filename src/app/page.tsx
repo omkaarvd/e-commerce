@@ -47,6 +47,16 @@ const COLORS_FILTERS = {
   ],
 } as const;
 
+const SIZE_FILTERS = {
+  id: "size",
+  label: "Size",
+  options: [
+    { label: "S", value: "S" },
+    { label: "M", value: "M" },
+    { label: "L", value: "L" },
+  ],
+} as const;
+
 const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
 
 export default function Home() {
@@ -170,6 +180,40 @@ export default function Home() {
                         />
                         <label
                           htmlFor={`color-${idx}`}
+                          className="ml-3 text-gray-600 text-sm"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Size filter */}
+              <AccordionItem value="size">
+                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
+                  <span className="font-medium text-gray-900">Size</span>
+                </AccordionTrigger>
+
+                <AccordionContent>
+                  <ul className="space-y-4">
+                    {SIZE_FILTERS.options.map((option, idx) => (
+                      <li key={option.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`size-${idx}`}
+                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          onChange={() => {
+                            applyArrayFilter({
+                              category: "size",
+                              value: option.value,
+                            });
+                          }}
+                          checked={filter.size.includes(option.value)}
+                        />
+                        <label
+                          htmlFor={`size-${idx}`}
                           className="ml-3 text-gray-600 text-sm"
                         >
                           {option.label}
