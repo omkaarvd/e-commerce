@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 import { SelectProduct } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { ProductState } from "@/lib/validators/product-validator";
@@ -54,6 +55,17 @@ const SIZE_FILTERS = {
     { label: "S", value: "S" },
     { label: "M", value: "M" },
     { label: "L", value: "L" },
+  ],
+} as const;
+
+const PRICE_FILTERS = {
+  id: "price",
+  label: "price",
+  options: [
+    { label: "Any Price", value: [0, 500] },
+    { label: "Under ₹200", value: [0, 200] },
+    { label: "Under ₹400", value: [0, 400] },
+    // custom option defined in JSX below
   ],
 } as const;
 
@@ -220,6 +232,106 @@ export default function Home() {
                         </label>
                       </li>
                     ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Price filter */}
+              <AccordionItem value="price">
+                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
+                  <span className="font-medium text-gray-900">Price</span>
+                </AccordionTrigger>
+
+                <AccordionContent>
+                  <ul className="space-y-4">
+                    {PRICE_FILTERS.options.map((option, idx) => (
+                      <li key={option.label} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={`price-${idx}`}
+                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          onChange={() => {
+                            setFilter((prev) => ({
+                              ...prev,
+                              price: {
+                                is_custom: false,
+                                range: [...option.value],
+                              },
+                            }));
+                          }}
+                          checked={
+                            !filter.price.is_custom &&
+                            option.value[0] === filter.price.range[0] &&
+                            option.value[1] === filter.price.range[1]
+                          }
+                        />
+                        <label
+                          htmlFor={`price-${idx}`}
+                          className="ml-3 text-gray-600 text-sm"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                    <li className="flex justify-center flex-col gap-2">
+                      <div>
+                        <input
+                          type="radio"
+                          id="price-custom"
+                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          onChange={() => {
+                            setFilter((prev) => ({
+                              ...prev,
+                              price: {
+                                is_custom: true,
+                                range: [0, 500],
+                              },
+                            }));
+                          }}
+                          checked={filter.price.is_custom}
+                        />
+                        <label
+                          htmlFor="price-custom"
+                          className="ml-3 text-gray-600 text-sm"
+                        >
+                          Custom
+                        </label>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <p className="font-medium">Price</p>
+
+                        <div>
+                          ₹{filter.price.range[0].toFixed(0)} - ₹
+                          {filter.price.range[1].toFixed(0)}
+                        </div>
+                      </div>
+
+                      <Slider
+                        className={cn({
+                          "opacity-50": !filter.price.is_custom,
+                        })}
+                        disabled={!filter.price.is_custom}
+                        onValueChange={(range) => {
+                          setFilter((prev) => ({
+                            ...prev,
+                            price: {
+                              is_custom: true,
+                              range: [range[0], range[1]],
+                            },
+                          }));
+                        }}
+                        value={
+                          filter.price.is_custom
+                            ? filter.price.range
+                            : DEFAULT_CUSTOM_PRICE
+                        }
+                        min={DEFAULT_CUSTOM_PRICE[0]}
+                        defaultValue={DEFAULT_CUSTOM_PRICE}
+                        max={DEFAULT_CUSTOM_PRICE[1]}
+                        // step={5}
+                      />
+                    </li>
                   </ul>
                 </AccordionContent>
               </AccordionItem>
