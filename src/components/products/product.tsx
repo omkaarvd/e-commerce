@@ -20,7 +20,7 @@ export default function Product({ product }: { product: SelectProduct }) {
           </p>
         </div>
 
-        <p className="text-gray-900 font-medium">{product.price}</p>
+        <p className="text-gray-900 font-medium">₹{product.price}</p>
       </div>
     </div>
   );
