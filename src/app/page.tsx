@@ -1,5 +1,6 @@
 "use client";
 
+import EmptyState from "@/components/products/empty-state";
 import Product from "@/components/products/product";
 import ProductSkeleton from "@/components/products/product-skeleton";
 import {
@@ -359,13 +360,17 @@ export default function Home() {
 
           {/* product grid */}
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {!products
-              ? new Array(9)
-                  .fill(null)
-                  .map((_, idx) => <ProductSkeleton key={idx} />)
-              : products.map((product) => (
-                  <Product key={product.id} product={product} />
-                ))}
+            {!products ? (
+              new Array(9)
+                .fill(null)
+                .map((_, idx) => <ProductSkeleton key={idx} />)
+            ) : products.length === 0 ? (
+              <EmptyState />
+            ) : (
+              products.map((product) => (
+                <Product key={product.id} product={product} />
+              ))
+            )}
           </ul>
         </div>
       </section>
