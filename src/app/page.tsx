@@ -76,9 +76,9 @@ const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
 export default function Home() {
   const [filter, setFilter] = useState<ProductState>({
     sort: "none",
-    color: ["beige", "blue", "green", "purple", "white"],
+    color: [],
     price: { is_custom: false, range: DEFAULT_CUSTOM_PRICE },
-    size: ["L", "M", "S"],
+    size: [],
   });
 
   const { data: products, refetch: refetchProducts } = useQuery({
