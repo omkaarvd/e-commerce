@@ -299,7 +299,7 @@ export default function Home() {
                               ...prev,
                               price: {
                                 is_custom: true,
-                                range: [0, 500],
+                                range: DEFAULT_CUSTOM_PRICE,
                               },
                             }));
 
