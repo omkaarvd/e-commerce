@@ -20,8 +20,9 @@ import { cn } from "@/lib/utils";
 import { ProductState } from "@/lib/validators/product-validator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const SORT_OPTIONS = [
   { label: "None", value: "none" },
@@ -79,7 +80,7 @@ export default function Home() {
     size: ["L", "M", "S"],
   });
 
-  const { data: products } = useQuery({
+  const { data: products, refetch: refetchProducts } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data } = await axios.post<SelectProduct[]>("/api/products", {
@@ -94,6 +95,9 @@ export default function Home() {
       return data;
     },
   });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedRefetch = useCallback(debounce(refetchProducts, 700), []);
 
   const applyArrayFilter = ({
     category,
@@ -115,6 +119,8 @@ export default function Home() {
         [category]: [...prev[category], value],
       }));
     }
+
+    debouncedRefetch();
   };
 
   return (
@@ -137,6 +143,8 @@ export default function Home() {
                   key={option.value}
                   onClick={() => {
                     setFilter((prev) => ({ ...prev, sort: option.value }));
+
+                    debouncedRefetch();
                   }}
                   className={cn("text-base", {
                     "text-gray-900 bg-gray-100": filter.sort === option.value,
@@ -263,6 +271,8 @@ export default function Home() {
                                 range: [...option.value],
                               },
                             }));
+
+                            debouncedRefetch();
                           }}
                           checked={
                             !filter.price.is_custom &&
@@ -292,6 +302,8 @@ export default function Home() {
                                 range: [0, 500],
                               },
                             }));
+
+                            debouncedRefetch();
                           }}
                           checked={filter.price.is_custom}
                         />
@@ -325,6 +337,8 @@ export default function Home() {
                               range: [range[0], range[1]],
                             },
                           }));
+
+                          debouncedRefetch();
                         }}
                         value={
                           filter.price.is_custom
