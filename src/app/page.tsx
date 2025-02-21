@@ -99,7 +99,7 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedRefetch = useCallback(debounce(refetchProducts, 700), []);
 
-  const applyArrayFilter = ({
+  const applyColorAndSizeFilter = ({
     category,
     value,
   }: {
@@ -196,7 +196,7 @@ export default function Home() {
                           id={`color-${idx}`}
                           className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           onChange={() => {
-                            applyArrayFilter({
+                            applyColorAndSizeFilter({
                               category: "color",
                               value: option.value,
                             });
@@ -230,7 +230,7 @@ export default function Home() {
                           id={`size-${idx}`}
                           className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           onChange={() => {
-                            applyArrayFilter({
+                            applyColorAndSizeFilter({
                               category: "size",
                               value: option.value,
                             });
