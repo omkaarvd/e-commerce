@@ -112,7 +112,7 @@ export default function Home() {
     if (isFilterExist) {
       setFilter((prev) => ({
         ...prev,
-        [category]: prev[category].filter((item) => item !== value),
+        [category]: prev[category].filter((val) => val !== value),
       }));
     } else {
       setFilter((prev) => ({
