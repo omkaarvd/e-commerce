@@ -290,7 +290,7 @@ export default function Home() {
                       </li>
                     ))}
                     <li className="flex justify-center flex-col gap-2">
-                      <div>
+                      <div className="flex items-center">
                         <input
                           type="radio"
                           id="price-custom"
