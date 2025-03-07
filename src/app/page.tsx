@@ -32,13 +32,6 @@ const SORT_OPTIONS = [
   { label: "Price: High to Low", value: "price-desc" },
 ] as const;
 
-const SUBCATEGORIES = [
-  { label: "T-Shirts", selected: true, href: "#" },
-  { label: "Hoodies", selected: false, href: "#" },
-  { label: "Sweatshirts", selected: false, href: "#" },
-  { label: "Accessories", selected: false, href: "#" },
-] as const;
-
 const COLORS_FILTERS = {
   id: "color",
   label: "Color",
@@ -168,19 +161,6 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
           {/* filters */}
           <div className="hidden lg:block">
-            <ul className="space-y-4 border-b border-gray-200 pb-6 font-medium text-gray-900">
-              {SUBCATEGORIES.map((sub_category) => (
-                <li key={sub_category.label}>
-                  <button
-                    disabled={!sub_category.selected}
-                    className="disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {sub_category.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-
             <Accordion type="multiple">
               {/* Color filter */}
               <AccordionItem value="color">
