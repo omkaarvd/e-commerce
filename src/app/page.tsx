@@ -1,8 +1,8 @@
 "use client";
 
-import EmptyState from "@/components/products/empty-state";
-import Product from "@/components/products/product";
-import ProductSkeleton from "@/components/products/product-skeleton";
+import EmptyState from "@/components/empty-state";
+import Product from "@/components/product";
+import ProductSkeleton from "@/components/product-skeleton";
 import SearchBar from "@/components/search-bar";
 import {
   Accordion,
@@ -18,55 +18,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { SelectProduct } from "@/db/schema";
-import { cn } from "@/lib/utils";
-import { ProductState } from "@/lib/validators/product-validator";
+import {
+  cn,
+  COLORS_FILTERS,
+  DEFAULT_CUSTOM_PRICE,
+  PRICE_FILTERS,
+  SIZE_FILTERS,
+  SORT_OPTIONS,
+} from "@/lib/utils";
+import { ProductState } from "@/lib/product-validator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
 import { use, useCallback, useState } from "react";
-
-const SORT_OPTIONS = [
-  { label: "None", value: "none" },
-  { label: "Price: Low to High", value: "price-asc" },
-  { label: "Price: High to Low", value: "price-desc" },
-] as const;
-
-const COLORS_FILTERS = {
-  id: "color",
-  label: "Color",
-  options: [
-    { label: "White", value: "white" },
-    { label: "Beige", value: "beige" },
-    { label: "Blue", value: "blue" },
-    { label: "Green", value: "green" },
-    { label: "Purple", value: "purple" },
-    { label: "Black", value: "black" },
-  ],
-} as const;
-
-const SIZE_FILTERS = {
-  id: "size",
-  label: "Size",
-  options: [
-    { label: "S", value: "S" },
-    { label: "M", value: "M" },
-    { label: "L", value: "L" },
-  ],
-} as const;
-
-const PRICE_FILTERS = {
-  id: "price",
-  label: "price",
-  options: [
-    { label: "Any Price", value: [0, 500] },
-    { label: "Under ₹200", value: [0, 200] },
-    { label: "Under ₹400", value: [0, 400] },
-    // custom option defined in JSX below
-  ],
-} as const;
-
-const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
 
 type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

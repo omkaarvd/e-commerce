@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { productsTable, SelectProduct } from "@/db/schema";
-import { ProductFilterValidator } from "@/lib/validators/product-validator";
+import { ProductFilterValidator } from "@/lib/product-validator";
 import { vectorize } from "@/lib/vectorize";
 import { Index } from "@upstash/vector";
 import { and, asc, between, desc, inArray, sql, SQL } from "drizzle-orm";
