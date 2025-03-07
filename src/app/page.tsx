@@ -3,6 +3,7 @@
 import EmptyState from "@/components/products/empty-state";
 import Product from "@/components/products/product";
 import ProductSkeleton from "@/components/products/product-skeleton";
+import SearchBar from "@/components/search-bar";
 import {
   Accordion,
   AccordionContent,
@@ -126,10 +127,8 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-12">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-          High Quality Cotton Selection
-        </h1>
+      <div className="flex items-center justify-between gap-4 border-b border-gray-200 pb-6 pt-12">
+        <SearchBar />
 
         <div className="flex items-center">
           <DropdownMenu>
