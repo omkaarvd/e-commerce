@@ -7,6 +7,7 @@ export const AVAILABLE_COLORS = [
   "blue",
   "green",
   "purple",
+  "black",
 ] as const;
 export const SORT_OPTIONS = ["none", "price-asc", "price-desc"] as const;
 

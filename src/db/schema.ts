@@ -14,7 +14,7 @@ export const productsTable = createTable("products", {
   name: text("name").notNull(),
   size: text({ enum: ["S", "M", "L"] }).notNull(),
   color: text({
-    enum: ["white", "beige", "blue", "green", "purple"],
+    enum: ["white", "beige", "blue", "green", "purple", "black"],
   }).notNull(),
   price: doublePrecision().notNull(),
   description: text("description"),

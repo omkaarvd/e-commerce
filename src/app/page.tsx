@@ -48,6 +48,7 @@ const COLORS_FILTERS = {
     { label: "Blue", value: "blue" },
     { label: "Green", value: "green" },
     { label: "Purple", value: "purple" },
+    { label: "Black", value: "black" },
   ],
 } as const;
 
