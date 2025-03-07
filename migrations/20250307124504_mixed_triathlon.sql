@@ -4,5 +4,8 @@ CREATE TABLE "e_com_products" (
 	"name" text NOT NULL,
 	"size" text NOT NULL,
 	"color" text NOT NULL,
-	"price" double precision NOT NULL
+	"price" double precision NOT NULL,
+	"description" text,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
 );
