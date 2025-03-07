@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SearchBar() {
+export default function SearchBar({ refetch }: { refetch: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSearching, startTransition] = useTransition();
   const router = useRouter();
@@ -14,6 +14,8 @@ export default function SearchBar() {
     startTransition(() => {
       router.push(`?query=${query.trim().replace(/ /g, "+")}`);
     });
+
+    refetch();
   };
 
   useEffect(() => {

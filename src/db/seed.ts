@@ -1,5 +1,9 @@
+import { vectorize } from "@/lib/vectorize";
+import { Index } from "@upstash/vector";
 import { db } from ".";
 import { InsertProduct, productsTable } from "./schema";
+
+const index = new Index();
 
 const getRandomPrice = () => {
   const PRICES = [99.99, 199.99, 299.99, 399.99, 499.99];
@@ -23,7 +27,7 @@ const seedTshirts = async () => {
       "Stand out in this stylish purple t-shirt. Its deep, rich color and ultra-soft fabric make it a go-to choice for those who love a blend of elegance and comfort.",
   };
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     for (let j = 0; j < COLORS.length; j++) {
       for (let k = 0; k < SIZES.length; k++) {
         const size = SIZES[k];
@@ -46,9 +50,19 @@ const seedTshirts = async () => {
   try {
     await db.insert(productsTable).values(products);
 
-    console.log("Successfully seeded the database!");
+    products.forEach(async (product, idx) => {
+      const vector = await vectorize(`${product.name}: ${product.description}`);
+
+      await index.upsert({
+        id: product.id,
+        vector,
+        metadata: { ...product },
+      });
+
+      console.log(`${idx} tshirt vectorized and indexed!`);
+    });
   } catch (error) {
-    console.error("Error seeding the database:", error);
+    console.error("Error seeding t-shirts in the database:", error);
   }
 };
 
@@ -268,9 +282,23 @@ async function seedJackets() {
     },
   ];
 
-  products.forEach(async (product) => {
-    await db.insert(productsTable).values(product);
-  });
+  try {
+    await db.insert(productsTable).values(products);
+
+    products.forEach(async (product, idx) => {
+      const vector = await vectorize(`${product.name}: ${product.description}`);
+
+      await index.upsert({
+        id: product.id,
+        vector,
+        metadata: { ...product },
+      });
+
+      console.log(`${idx} jacket vectorized and indexed!`);
+    });
+  } catch (error) {
+    console.error("Error seeding jackets in the database:", error);
+  }
 }
 
 seedJackets();

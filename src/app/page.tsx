@@ -24,7 +24,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
-import { useCallback, useState } from "react";
+import { use, useCallback, useState } from "react";
 
 const SORT_OPTIONS = [
   { label: "None", value: "none" },
@@ -68,13 +68,20 @@ const PRICE_FILTERS = {
 
 const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
 
-export default function Home() {
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default function Home(props: PageProps) {
   const [filter, setFilter] = useState<ProductState>({
     sort: "none",
     color: [],
     price: { is_custom: false, range: DEFAULT_CUSTOM_PRICE },
     size: [],
   });
+
+  const searchParams = use(props.searchParams);
+  const query = searchParams.query;
 
   const { data: products, refetch: refetchProducts } = useQuery({
     queryKey: ["products"],
@@ -86,6 +93,7 @@ export default function Home() {
           price: filter.price.range,
           size: filter.size,
         },
+        query,
       });
 
       return data;
@@ -122,7 +130,7 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-4 border-b border-gray-200 pb-6 pt-12">
-        <SearchBar />
+        <SearchBar refetch={debouncedRefetch} />
 
         <div className="flex items-center">
           <DropdownMenu>
