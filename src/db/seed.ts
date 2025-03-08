@@ -1,9 +1,6 @@
 import { vectorize } from "@/lib/vectorize";
-import { Index } from "@upstash/vector";
 import { db } from ".";
 import { InsertProduct, productsTable } from "./schema";
-
-const index = new Index();
 
 const getRandomPrice = () => {
   const PRICES = [99.99, 199.99, 299.99, 399.99, 499.99];
@@ -32,16 +29,22 @@ const seedTshirts = async () => {
       for (let k = 0; k < SIZES.length; k++) {
         const size = SIZES[k];
         const color = COLORS[j];
+        const price = getRandomPrice();
+        const name = `${
+          color.slice(0, 1).toUpperCase() + color.slice(1)
+        } shirt ${i}`;
+
         products.push({
           id: `${color}-${size}-${i + 1}`,
           imageURL: `/media/tshirts/${color}_${i + 1}.png`,
           color,
-          name: `${
-            color.slice(0, 1).toUpperCase() + color.slice(1)
-          } shirt ${i}`,
+          name,
           size,
-          price: getRandomPrice(),
+          price,
           description: DESCRIPTIONS[color],
+          embedding: await vectorize(
+            `${name}: ${DESCRIPTIONS[color]} Color: ${color}, Size: ${size}, Price: ${price}`
+          ),
         });
       }
     }
@@ -49,18 +52,6 @@ const seedTshirts = async () => {
 
   try {
     await db.insert(productsTable).values(products);
-
-    products.forEach(async (product, idx) => {
-      const vector = await vectorize(`${product.name}: ${product.description}`);
-
-      await index.upsert({
-        id: product.id,
-        vector,
-        metadata: { ...product },
-      });
-
-      console.log(`${idx} tshirt vectorized and indexed!`);
-    });
   } catch (error) {
     console.error("Error seeding t-shirts in the database:", error);
   }
@@ -69,7 +60,7 @@ const seedTshirts = async () => {
 seedTshirts();
 
 async function seedJackets() {
-  const products: InsertProduct[] = [
+  let products: InsertProduct[] = [
     {
       id: "dark_down_jacket_1",
       name: "Dark Down Jacket 1",
@@ -282,20 +273,17 @@ async function seedJackets() {
     },
   ];
 
+  const embeddingPromises = products.map(async (product) => {
+    product.embedding = await vectorize(
+      `${product.name}: ${product.description}, Color: ${product.color}, Size: ${product.size}, Price: ${product.price}`
+    );
+    return product;
+  });
+
+  products = await Promise.all(embeddingPromises);
+
   try {
     await db.insert(productsTable).values(products);
-
-    products.forEach(async (product, idx) => {
-      const vector = await vectorize(`${product.name}: ${product.description}`);
-
-      await index.upsert({
-        id: product.id,
-        vector,
-        metadata: { ...product },
-      });
-
-      console.log(`${idx} jacket vectorized and indexed!`);
-    });
   } catch (error) {
     console.error("Error seeding jackets in the database:", error);
   }
