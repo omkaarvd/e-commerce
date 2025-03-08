@@ -24,9 +24,17 @@ export const productsTable = createTable(
     description: text("description"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
+    /**
+     * before creating the table, you need to create the pgvector extension in your postgres database
+     * CREATE EXTENSION pg_vector;
+     */
     embedding: vector("embedding", { dimensions: 768 }),
   },
   (table) => [
+    /**
+     * The HNSW index type is particularly useful for vector similarity search operations and
+     * is one of the index types supported by pgvector for optimizing vector similarity queries
+     */
     index("embeddingIndex").using(
       "hnsw",
       table.embedding.op("vector_cosine_ops")
