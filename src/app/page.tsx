@@ -53,7 +53,7 @@ export default function Home(props: PageProps) {
   const { data: products, refetch: refetchProducts } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const [productsResponse, productsTotalCountResponse] = await Promise.all([
+      const [filteredProducts, allProducts] = await Promise.all([
         axios.post<SelectProduct[]>("/api/products", {
           filter: {
             sort: filter.sort,
@@ -69,8 +69,8 @@ export default function Home(props: PageProps) {
       ]);
 
       return {
-        data: productsResponse.data,
-        count: productsTotalCountResponse.data.length,
+        data: filteredProducts.data,
+        count: query ? filteredProducts.data.length : allProducts.data.length,
       };
     },
   });
