@@ -2,8 +2,17 @@ import { db } from "@/db";
 import { productsTable, SelectProduct } from "@/db/schema";
 import { ProductFilterValidator } from "@/lib/product-validator";
 import { vectorize } from "@/lib/vectorize";
-import { Index } from "@upstash/vector";
-import { and, asc, between, desc, inArray, sql, SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  between,
+  cosineDistance,
+  desc,
+  gt,
+  inArray,
+  sql,
+  SQL,
+} from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 const index = new Index<SelectProduct>();
@@ -33,15 +42,25 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (params) {
-      filters.push(
-        // sql`to_tsvector(${productsTable.name}) @@ plainto_tsquery(${params})`
-        sql`to_tsvector('simple', lower(${productsTable.name} || ' ' || ${
-          productsTable.description
-        })) @@ to_tsquery('simple', lower(${params
-          .trim()
-          .split(" ")
-          .join(" & ")}))`
-      );
+      const embedding = await vectorize(params);
+      const similarity = sql<number>`1 - (${cosineDistance(
+        productsTable.embedding,
+        embedding
+      )})`;
+
+      /* semantic search */
+      filters.push(gt(similarity, 0.6));
+
+      /* Full text search */
+      // filters.push(
+      //   // sql`to_tsvector(${productsTable.name}) @@ plainto_tsquery(${params})`
+      //   sql`to_tsvector('simple', lower(${productsTable.name} || ' ' || ${
+      //     productsTable.description
+      //   })) @@ to_tsquery('simple', lower(${params
+      //     .trim()
+      //     .split(" ")
+      //     .join(" & ")}))`
+      // );
     }
 
     const query = db
@@ -56,28 +75,6 @@ export const POST = async (req: NextRequest) => {
     }
 
     const products: SelectProduct[] = await query;
-
-    if (params && products.length < 3) {
-      // search products with semantic similarity
-      const vector = await vectorize(params);
-
-      const res = await index.query({
-        topK: 5,
-        vector,
-        includeMetadata: true,
-      });
-
-      const vectorProducts = res
-        .filter((prod) => {
-          if (products.some((p) => p.id === prod.id)) {
-            return false;
-          } else return true;
-        })
-        .map(({ metadata }) => metadata!);
-
-      // merge both results
-      products.push(...vectorProducts);
-    }
 
     return new Response(JSON.stringify(products));
   } catch (err) {
