@@ -1,6 +1,7 @@
 "use client";
 
 import EmptyState from "@/components/empty-state";
+import { CustomPagination } from "@/components/custom-pagination";
 import Product from "@/components/product";
 import ProductSkeleton from "@/components/product-skeleton";
 import SearchBar from "@/components/search-bar";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { SelectProduct } from "@/db/schema";
+import { ProductState } from "@/lib/product-validator";
 import {
   cn,
   COLORS_FILTERS,
@@ -26,7 +28,6 @@ import {
   SIZE_FILTERS,
   SORT_OPTIONS,
 } from "@/lib/utils";
-import { ProductState } from "@/lib/product-validator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import debounce from "lodash.debounce";
@@ -34,7 +35,7 @@ import { ChevronDown, Filter } from "lucide-react";
 import { use, useCallback, useState } from "react";
 
 type PageProps = {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 };
 
 export default function Home(props: PageProps) {
@@ -47,21 +48,30 @@ export default function Home(props: PageProps) {
 
   const searchParams = use(props.searchParams);
   const query = searchParams.query;
+  const page = searchParams.page || "1";
 
   const { data: products, refetch: refetchProducts } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data } = await axios.post<SelectProduct[]>("/api/products", {
-        filter: {
-          sort: filter.sort,
-          color: filter.color,
-          price: filter.price.range,
-          size: filter.size,
-        },
-        query,
-      });
+      const [productsResponse, productsTotalCountResponse] = await Promise.all([
+        axios.post<SelectProduct[]>("/api/products", {
+          filter: {
+            sort: filter.sort,
+            color: filter.color,
+            price: filter.price.range,
+            size: filter.size,
+          },
+          query,
+          page,
+        }),
 
-      return data;
+        axios.get<SelectProduct[]>("/api/products"),
+      ]);
+
+      return {
+        data: productsResponse.data,
+        count: productsTotalCountResponse.data.length,
+      };
     },
   });
 
@@ -317,13 +327,22 @@ export default function Home(props: PageProps) {
               new Array(9)
                 .fill(null)
                 .map((_, idx) => <ProductSkeleton key={idx} />)
-            ) : products.length === 0 ? (
+            ) : products.data.length === 0 ? (
               <EmptyState />
             ) : (
-              products.map((product) => (
+              products.data.map((product) => (
                 <Product key={product.id} product={product} />
               ))
             )}
+
+            {/* Pagination */}
+            <div className="text-center col-span-3">
+              <CustomPagination
+                page={parseInt(page)}
+                pageSize={9}
+                totalCount={products?.count || 0}
+              />
+            </div>
           </ul>
         </div>
       </section>

@@ -19,6 +19,7 @@ import { z } from "zod";
 const RequestBodyValidator = z.object({
   filter: ProductFilterValidator,
   query: z.string().optional(),
+  page: z.string().optional(),
 });
 
 export const POST = async (req: NextRequest) => {
@@ -28,6 +29,7 @@ export const POST = async (req: NextRequest) => {
 
     const { color, price, size, sort } = validatedBody.filter;
     const params = validatedBody.query;
+    const page = parseInt(validatedBody.page || "1");
 
     const filters: SQL[] = [];
 
@@ -65,10 +67,14 @@ export const POST = async (req: NextRequest) => {
       // );
     }
 
+    const limit = 9;
+
     const query = db
       .select()
       .from(productsTable)
-      .where(and(...filters));
+      .where(and(...filters))
+      .limit(limit)
+      .offset((page - 1) * limit);
 
     if (sort === "price-asc") {
       query.orderBy(asc(productsTable.price));
@@ -90,6 +96,20 @@ export const POST = async (req: NextRequest) => {
         }
       );
     }
+
+    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
+      status: 500,
+    });
+  }
+};
+
+export const GET = async () => {
+  try {
+    const products = await db.select().from(productsTable);
+
+    return new Response(JSON.stringify(products));
+  } catch (err) {
+    console.error(err);
 
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,
