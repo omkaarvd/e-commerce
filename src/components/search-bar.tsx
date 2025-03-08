@@ -1,21 +1,30 @@
 import { Loader2, Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SearchBar({ refetch }: { refetch: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSearching, startTransition] = useTransition();
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
 
   const handleSearch = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+
     startTransition(() => {
-      router.push(`?query=${query.trim().replace(/ /g, "+")}`);
+      newSearchParams.set("query", query);
+
+      if (query === "") newSearchParams.delete("query");
+
+      router.push(`/?${newSearchParams}`);
     });
 
-    refetch();
+    if (query) {
+      refetch();
+    }
   };
 
   useEffect(() => {
@@ -25,6 +34,8 @@ export default function SearchBar({ refetch }: { refetch: () => void }) {
         inputRef.current?.focus();
       }
     };
+
+    setQuery(searchParams.get("query") || "");
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
