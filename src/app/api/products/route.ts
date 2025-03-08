@@ -14,18 +14,20 @@ import {
   SQL,
 } from "drizzle-orm";
 import { NextRequest } from "next/server";
+import { z } from "zod";
 
-const index = new Index<SelectProduct>();
+const RequestBodyValidator = z.object({
+  filter: ProductFilterValidator,
+  query: z.string().optional(),
+});
 
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
+    const validatedBody = RequestBodyValidator.parse(body);
 
-    const { color, price, size, sort } = ProductFilterValidator.parse(
-      body.filter
-    );
-
-    const params = body.query as string;
+    const { color, price, size, sort } = validatedBody.filter;
+    const params = validatedBody.query;
 
     const filters: SQL[] = [];
 
@@ -79,6 +81,15 @@ export const POST = async (req: NextRequest) => {
     return new Response(JSON.stringify(products));
   } catch (err) {
     console.error(err);
+
+    if (err instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ message: "Invalid request data", errors: err.errors }),
+        {
+          status: 400,
+        }
+      );
+    }
 
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,
