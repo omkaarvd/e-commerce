@@ -1,8 +1,8 @@
 "use client";
 
-import EmptyState from "@/components/empty-state";
 import { CustomPagination } from "@/components/custom-pagination";
-import Product from "@/components/product";
+import EmptyState from "@/components/empty-state";
+import Product from "@/components/product-component";
 import ProductSkeleton from "@/components/product-skeleton";
 import SearchBar from "@/components/search-bar";
 import {
@@ -103,8 +103,8 @@ export default function Home(props: PageProps) {
   };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between gap-4 border-b border-gray-200 pb-6 pt-12">
+    <>
+      <div className="flex items-center justify-between gap-4 border-gray-200 py-6">
         <SearchBar refetch={debouncedRefetch} />
 
         <div className="flex items-center">
@@ -346,6 +346,6 @@ export default function Home(props: PageProps) {
           </ul>
         </div>
       </section>
-    </main>
+    </>
   );
 }
