@@ -6,6 +6,7 @@
     "clean": "rm -rf .next node_modules",
     "dev": "next dev --turbopack",
     "build": "next build",
+    "prestart": "bun build",
     "start": "next start",
     "lint": "next lint",
     "db:seed": "bun --env-file=.env src/db/seed.ts",
