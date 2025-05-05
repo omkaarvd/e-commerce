@@ -57,7 +57,7 @@ export default function SearchBar({ refetch }: { refetch: () => void }) {
         onChange={(e) => setQuery(e.target.value)}
         disabled={isSearching}
         ref={inputRef}
-        placeholder="Search cotton..."
+        placeholder="Search..."
         className="peer"
       />
 
