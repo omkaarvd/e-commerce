@@ -1,5 +1,13 @@
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import CartIcon from "./cart-icon";
+import { Button } from "./ui/button";
 
 export default function Nav() {
   return (
@@ -8,7 +16,21 @@ export default function Nav() {
         <Link href="/">
           <h1 className="text-xl font-bold">E Commerce</h1>
         </Link>
-        <CartIcon />
+        <div className="flex items-center gap-4">
+          <SignedOut>
+            <SignInButton>
+              <Button variant="default">Sign In</Button>
+            </SignInButton>
+            <SignUpButton>
+              <Button variant="default">Sign Up</Button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+
+          <CartIcon />
+        </div>
       </div>
     </header>
   );

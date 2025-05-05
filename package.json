@@ -16,6 +16,7 @@
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.18.5",
     "@google/generative-ai": "^0.24.0",
     "@neondatabase/serverless": "^0.10.4",
     "@radix-ui/react-accordion": "^1.2.3",
