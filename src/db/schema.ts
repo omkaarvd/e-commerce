@@ -50,6 +50,7 @@ export type SelectProduct = InferSelectModel<typeof productsTable>;
 export const usersTable = createTable("users", {
   id: text().notNull().primaryKey(),
   email: text("email").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

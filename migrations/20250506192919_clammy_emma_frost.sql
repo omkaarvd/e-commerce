@@ -1,0 +1,1 @@
+ALTER TABLE "e_com_users" ADD COLUMN "stripe_customer_id" text;
