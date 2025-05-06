@@ -10,27 +10,22 @@ export const GET = async (
   try {
     const { id } = await params;
 
-    const product = await db
-      .select({
-        id: productsTable.id,
-        imageURL: productsTable.imageURL,
-        name: productsTable.name,
-        size: productsTable.size,
-        color: productsTable.color,
-        price: productsTable.price,
-        description: productsTable.description,
-        available: productsTable.available,
-      })
-      .from(productsTable)
-      .where(eq(productsTable.id, id));
+    const product = await db.query.productsTable.findFirst({
+      where: eq(productsTable.id, id),
+      columns: {
+        embedding: false,
+        createdAt: false,
+        updatedAt: false,
+      },
+    });
 
-    if (product.length === 0) {
+    if (!product) {
       return new Response(JSON.stringify({ message: "Product not found" }), {
         status: 404,
       });
     }
 
-    return new Response(JSON.stringify({ ...product[0] }));
+    return new Response(JSON.stringify(product));
   } catch (err) {
     console.error(err);
 
