@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { SelectProduct } from "@/db/schema";
 import { useCart } from "@/lib/cart-store";
+import { capetalizeFirstLetter, cn } from "@/lib/utils";
 import { ShoppingCart } from "lucide-react";
 
 type ProductWithoutMeta = Omit<
@@ -15,9 +16,24 @@ export default function ProductDisplay({
 }: {
   product: ProductWithoutMeta;
 }) {
-  const { addToCart, openCart } = useCart();
+  const { addToCart, openCart, cartItems } = useCart();
 
   const handleAddToCart = () => {
+    if (product.available === 0) return;
+
+    const currentCartItem = cartItems.find(
+      (item) =>
+        item.id === product.id &&
+        item.size === product.size &&
+        item.color === product.color
+    );
+    const currentQuantity = currentCartItem ? currentCartItem.quantity : 0;
+
+    if (currentQuantity + 1 > product.available) {
+      alert("Cannot add more than available stock to cart.");
+      return;
+    }
+
     addToCart({
       id: product.id,
       imageURL: product.imageURL,
@@ -25,6 +41,7 @@ export default function ProductDisplay({
       size: product.size,
       color: product.color,
       price: product.price,
+      available: product.available,
       quantity: 1,
     });
 
@@ -49,14 +66,29 @@ export default function ProductDisplay({
         <p className="text-2xl font-semibold">${product.price.toFixed(2)}</p>
 
         <div>
-          <h2 className="text-lg font-medium mb-2">{`Size: ${product.size}`}</h2>
-          <h2 className="text-lg font-medium mb-2">{`Color: ${
-            product.color.charAt(0).toUpperCase() + product.color.slice(1)
-          }`}</h2>
+          <h2 className="font-medium">{`Size: ${product.size}`}</h2>
+          <h2 className="font-medium">{`Color: ${capetalizeFirstLetter(
+            product.color
+          )}`}</h2>
+          <p
+            className={cn({
+              "text-green-500": product.available > 0,
+              "text-red-500": product.available === 0,
+            })}
+          >
+            {product.available > 0
+              ? `In Stock: ${product.available}`
+              : "Out of Stock"}
+          </p>{" "}
         </div>
 
         {/* Add to Cart Button */}
-        <Button size="lg" onClick={handleAddToCart} className="mt-4">
+        <Button
+          size="lg"
+          onClick={handleAddToCart}
+          className="mt-4"
+          disabled={product.available === 0}
+        >
           <ShoppingCart className="mr-2 h-5 w-5" />
           Add to Cart
         </Button>

@@ -9,6 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart-store";
+import { capetalizeFirstLetter } from "@/lib/utils";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 
@@ -54,7 +55,11 @@ export default function CartDrawer() {
                 <div className="flex-1">
                   <h3 className="font-medium">{item.name}</h3>
                   <p className="text-sm text-gray-500">
-                    Size: {item.size}, Color: {item.color}
+                    Size: {item.size}, Color:{" "}
+                    {capetalizeFirstLetter(item.color)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    In Stock: {item.available}
                   </p>
                   <p className="font-medium">${item.price.toFixed(2)}</p>
 
@@ -74,6 +79,7 @@ export default function CartDrawer() {
                       size="icon"
                       className="h-8 w-8"
                       onClick={() => increaseQuantity(item)}
+                      disabled={item.quantity >= item.available}
                     >
                       <Plus className="h-3 w-3" />
                     </Button>

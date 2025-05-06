@@ -19,6 +19,7 @@ export const GET = async (
         color: productsTable.color,
         price: productsTable.price,
         description: productsTable.description,
+        available: productsTable.available,
       })
       .from(productsTable)
       .where(eq(productsTable.id, id));

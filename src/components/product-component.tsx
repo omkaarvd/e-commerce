@@ -1,4 +1,5 @@
 import { SelectProduct } from "@/db/schema";
+import { capetalizeFirstLetter, cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function Product({ product }: { product: SelectProduct }) {
@@ -14,15 +15,28 @@ export default function Product({ product }: { product: SelectProduct }) {
           />
         </div>
 
-        <div className="mt-4 flex justify-between">
-          <div>
-            <h3 className="text-gray-700">{product.name}</h3>
-            <p className="mt-1 text-gray-500">
-              Size {product.size.toUpperCase()}, {product.color}
-            </p>
+        <div className="mt-4 flex flex-col justify-between">
+          <div className="flex flex-row justify-between items-center text-gray-900">
+            <p>{product.name}</p>
+            <p>₹{product.price}</p>
           </div>
 
-          <p className="text-gray-900 font-medium">₹{product.price}</p>
+          <div className="flex flex-row justify-between items-center text-gray-500">
+            <p>
+              Size {product.size.toUpperCase()},{" "}
+              {capetalizeFirstLetter(product.color)}
+            </p>
+            <p
+              className={cn({
+                "text-green-500": product.available > 0,
+                "text-red-500": product.available === 0,
+              })}
+            >
+              {product.available > 0
+                ? `In Stock: ${product.available}`
+                : "Out of Stock"}
+            </p>
+          </div>
         </div>
       </div>
     </Link>
