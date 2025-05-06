@@ -7,6 +7,8 @@ const getRandomPrice = () => {
   return PRICES[Math.floor(Math.random() * PRICES.length)];
 };
 
+const getRandomBet1to10 = () => Math.floor(Math.random() * 10);
+
 const seedTshirts = async () => {
   const products: InsertProduct[] = [];
 
@@ -45,6 +47,7 @@ const seedTshirts = async () => {
           embedding: await vectorize(
             `${name}: ${DESCRIPTIONS[color]} Color: ${color}, Size: ${size}, Price: ${price}`
           ),
+          available: getRandomBet1to10(),
         });
       }
     }
@@ -68,6 +71,7 @@ async function seedJackets() {
       color: "black",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A sleek, insulated down jacket designed for chilly urban adventures. Its slim fit and dark hue make it a versatile addition to any winter wardrobe.",
     },
@@ -78,6 +82,7 @@ async function seedJackets() {
       color: "black",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "This durable down jacket offers exceptional warmth with a touch of elegance. Perfect for those who demand both style and functionality in cold weather.",
     },
@@ -88,6 +93,7 @@ async function seedJackets() {
       color: "beige",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Experience the cozy warmth of this dark fleece jacket. Ideal for layering, its soft texture and classic design ensure comfort and style on cooler days.",
     },
@@ -98,6 +104,7 @@ async function seedJackets() {
       color: "black",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A timeless dark leather jacket that combines classic styling with rugged durability. Perfect for adding an edge to any outfit, rain or shine.",
     },
@@ -108,6 +115,7 @@ async function seedJackets() {
       color: "beige",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Stay protected against the elements with this durable parka. Its insulated lining and fur-trimmed hood offer warmth and style in harsh conditions.",
     },
@@ -118,6 +126,7 @@ async function seedJackets() {
       color: "beige",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "This sleek parka features a waterproof exterior and a thermal interior, making it a must-have for winter escapades in the city or the mountains.",
     },
@@ -128,6 +137,7 @@ async function seedJackets() {
       color: "beige",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "With its adjustable features and multiple pockets, this parka blends practicality with modern aesthetics for the ultimate winter outerwear.",
     },
@@ -138,6 +148,7 @@ async function seedJackets() {
       color: "black",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A modern twist on a classic design, this dark trench coat offers both sophistication and weather resistance, perfect for rainy days.",
     },
@@ -148,6 +159,7 @@ async function seedJackets() {
       color: "beige",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Lightweight yet warm, this down jacket is an essential layer for transitional weather, offering comfort without bulk.",
     },
@@ -158,6 +170,7 @@ async function seedJackets() {
       color: "white",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Embrace the cold in this light and airy down jacket, featuring a water-resistant shell and a sleek design for everyday wear.",
     },
@@ -168,6 +181,7 @@ async function seedJackets() {
       color: "white",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "This stylish down jacket combines warmth and lightweight design, making it the perfect companion for winter travel.",
     },
@@ -178,6 +192,7 @@ async function seedJackets() {
       color: "beige",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Enjoy the soft touch of this light fleece jacket, designed for brisk mornings and cool evenings, with a versatile zip-up style for easy layering.",
     },
@@ -188,6 +203,7 @@ async function seedJackets() {
       color: "blue",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A casual classic, this light denim jacket adds a layer of cool to any outfit, perfect for those crisp, sunny days.",
     },
@@ -198,6 +214,7 @@ async function seedJackets() {
       color: "blue",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Upgrade your casual wear with this distressed light denim jacket, featuring a relaxed fit and timeless appeal.",
     },
@@ -208,6 +225,7 @@ async function seedJackets() {
       color: "beige",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "This light parka offers a breathable, water-resistant layer, ideal for unpredictable weather, with a sleek design that doesn't compromise on style.",
     },
@@ -218,6 +236,7 @@ async function seedJackets() {
       color: "beige",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A chic and lightweight trench coat that brings an elegant layer to spring and autumn outfits, with a belted waist for a flattering fit.",
     },
@@ -228,6 +247,7 @@ async function seedJackets() {
       color: "beige",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Enjoy a stylish and sophisticated look with this lightweight trench coat made from a fabric that resists both wind and rain. Perfect for the transition between seasons.",
     },
@@ -238,6 +258,7 @@ async function seedJackets() {
       color: "green",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Take on the breezy days with this lightweight wind jacket that is designed to offer protection and style with its minimalist design and functional features.",
     },
@@ -248,6 +269,7 @@ async function seedJackets() {
       color: "green",
       size: "S",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A versatile windbreaker for active days. This jacket offers lightweight comfort and resistance to the elements in a sleek package.",
     },
@@ -258,6 +280,7 @@ async function seedJackets() {
       color: "green",
       size: "M",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "Stay ahead of the weather with this dynamic light wind jacket, combining breathability with waterproof technology for all-day comfort.",
     },
@@ -268,6 +291,7 @@ async function seedJackets() {
       color: "green",
       size: "L",
       price: getRandomPrice(),
+      available: getRandomBet1to10(),
       description:
         "A comfortable wind jacket designed to keep you warm during winter or rain. With a minimal light grey color it suits the rest of your outfit well.",
     },

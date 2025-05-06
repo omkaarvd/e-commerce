@@ -1,6 +1,6 @@
 {
-  "id": "d06ada2e-e629-4716-9e06-99e912359292",
-  "prevId": "e6945bfa-2252-4996-bc7e-a9d00603cd90",
+  "id": "45529af9-fd00-4eca-b54f-11654a2c9018",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -41,6 +41,12 @@
         "price": {
           "name": "price",
           "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "available": {
+          "name": "available",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -151,7 +157,20 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "e_com_purchases_product_id_e_com_products_id_fk": {
+          "name": "e_com_purchases_product_id_e_com_products_id_fk",
+          "tableFrom": "e_com_purchases",
+          "tableTo": "e_com_products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

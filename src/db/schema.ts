@@ -22,6 +22,7 @@ export const productsTable = createTable(
       enum: ["white", "beige", "blue", "green", "purple", "black"],
     }).notNull(),
     price: doublePrecision().notNull(),
+    available: integer("available").notNull(),
     description: text("description"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),

@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1741417238935,
-      "tag": "20250308070038_broken_meteorite",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746524128201,
-      "tag": "20250506093528_third_toad",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746524827935,
-      "tag": "20250506094707_small_songbird",
+      "when": 1746528363363,
+      "tag": "20250506104603_clear_dracula",
       "breakpoints": true
     }
   ]
