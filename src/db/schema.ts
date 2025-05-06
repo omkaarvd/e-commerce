@@ -1,11 +1,12 @@
 import { InferSelectModel } from "drizzle-orm";
 import {
+  doublePrecision,
+  index,
+  integer,
   pgTableCreator,
   text,
-  doublePrecision,
   timestamp,
   vector,
-  index,
 } from "drizzle-orm/pg-core";
 
 export const createTable = pgTableCreator((name) => `e_com_${name}`);
@@ -44,3 +45,29 @@ export const productsTable = createTable(
 
 export type InsertProduct = typeof productsTable.$inferInsert;
 export type SelectProduct = InferSelectModel<typeof productsTable>;
+
+export const usersTable = createTable("users", {
+  id: text().notNull().primaryKey(),
+  email: text("email").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = InferSelectModel<typeof usersTable>;
+
+export const purchasesTable = createTable("purchases", {
+  id: text().notNull().primaryKey(),
+  userId: text("user_id")
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .notNull(),
+  productId: text("product_id")
+    .references(() => productsTable.id, { onDelete: "cascade" })
+    .notNull(),
+  quantity: integer().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertPurchase = typeof purchasesTable.$inferInsert;
+export type SelectPurchase = InferSelectModel<typeof purchasesTable>;
