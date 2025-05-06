@@ -7,6 +7,30 @@ type ProductWithoutMeta = Omit<
   "createdAt" | "updatedAt" | "embedding"
 >;
 
+const getProduct = async (
+  slug: string
+): Promise<{
+  data: ProductWithoutMeta | null;
+  status: number;
+}> => {
+  try {
+    const { data: product } = await axios.get<ProductWithoutMeta>(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${slug}`
+    );
+
+    return {
+      data: product,
+      status: 200,
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (err) {
+    return {
+      data: null,
+      status: 404,
+    };
+  }
+};
+
 export default async function Page({
   params,
 }: {
@@ -14,9 +38,15 @@ export default async function Page({
 }) {
   const { slug } = await params;
 
-  const { data: product } = await axios.get<ProductWithoutMeta>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${slug}`
-  );
+  const result = await getProduct(slug);
 
-  return <ProductDisplay product={product} />;
+  if (!result.data || result.status !== 200) {
+    return (
+      <h1 className="text-xl font-bold text-center text-red-500 mt-12">
+        Product not found.
+      </h1>
+    );
+  }
+
+  return <ProductDisplay product={result.data} />;
 }

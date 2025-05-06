@@ -23,6 +23,12 @@ export const GET = async (
       .from(productsTable)
       .where(eq(productsTable.id, id));
 
+    if (product.length === 0) {
+      return new Response(JSON.stringify({ message: "Product not found" }), {
+        status: 404,
+      });
+    }
+
     return new Response(JSON.stringify({ ...product[0] }));
   } catch (err) {
     console.error(err);
