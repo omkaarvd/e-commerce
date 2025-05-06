@@ -19,15 +19,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { SelectProduct } from "@/db/schema";
-import { ProductState } from "@/lib/product-validator";
 import {
-  cn,
   COLORS_FILTERS,
   DEFAULT_CUSTOM_PRICE,
   PRICE_FILTERS,
   SIZE_FILTERS,
   SORT_OPTIONS,
-} from "@/lib/utils";
+} from "@/lib/filters";
+import { ProductState } from "@/lib/product-validator";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import debounce from "lodash.debounce";
