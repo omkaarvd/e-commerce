@@ -23,13 +23,17 @@ export async function POST(req: Request) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const userId = session.metadata?.userId;
-  const products = session.metadata?.products.split(",").map((p) => {
-    const arr = p.split(":");
-    return {
-      productId: arr[0],
-      quantity: Number(arr[1]),
-    };
-  });
+  const productsRaw = session.metadata?.products;
+
+  const products = productsRaw
+    ? productsRaw.split(",").map((p) => {
+        const arr = p.split(":");
+        return {
+          productId: arr[0],
+          quantity: Number(arr[1]),
+        };
+      })
+    : undefined;
 
   if (event.type === "checkout.session.completed") {
     if (!userId || !products) {
@@ -40,7 +44,7 @@ export async function POST(req: Request) {
 
     await db.insert(purchasesTable).values(
       products.map(({ productId, quantity }) => ({
-        id: session.id,
+        id: crypto.randomUUID(),
         userId,
         productId,
         quantity,
