@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter } from "@/lib/utils";
+import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function CartDrawer() {
   const {
@@ -26,6 +28,34 @@ export default function CartDrawer() {
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  const router = useRouter();
+
+  const handleCheckout = async () => {
+    try {
+      const response = await axios.post("/api/products/checkout", {
+        products: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+      });
+
+      if (response.status == 401) {
+        alert("Unauthorized. Please log in to proceed.");
+      }
+
+      if (response.status == 200) {
+        router.push(response.data.url);
+        closeCart();
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      alert(
+        error.response?.data?.message || "An error occurred during checkout."
+      );
+    }
+  };
 
   return (
     <Sheet open={isCartOpen} onOpenChange={closeCart}>
@@ -103,7 +133,9 @@ export default function CartDrawer() {
               <span>Total:</span>
               <span>₹{totalPrice.toFixed(2)}</span>
             </div>
-            <Button className="w-full">Checkout</Button>
+            <Button className="w-full" onClick={handleCheckout}>
+              Checkout
+            </Button>
           </SheetFooter>
         )}
       </SheetContent>
