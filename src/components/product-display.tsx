@@ -63,7 +63,7 @@ export default function ProductDisplay({
       {/* Product Details */}
       <div className="flex flex-col space-y-6">
         <h1 className="text-3xl font-bold">{product.name}</h1>
-        <p className="text-2xl font-semibold">${product.price.toFixed(2)}</p>
+        <p className="text-2xl font-semibold">₹{product.price.toFixed(2)}</p>
 
         <div>
           <h2 className="font-medium">{`Size: ${product.size}`}</h2>

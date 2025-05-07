@@ -11,7 +11,6 @@ import {
 import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter } from "@/lib/utils";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
 
 export default function CartDrawer() {
   const {
@@ -45,11 +44,11 @@ export default function CartDrawer() {
                 className="flex gap-4 border-b pb-4"
               >
                 <div className="relative h-20 w-20 rounded-md overflow-hidden bg-gray-100">
-                  <Image
-                    src={item.imageURL || "/placeholder.svg"}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.imageURL}
                     alt={item.name}
-                    fill
-                    className="object-contain"
+                    className="size-full object-center object-cover"
                   />
                 </div>
                 <div className="flex-1">
@@ -61,7 +60,7 @@ export default function CartDrawer() {
                   <p className="text-sm text-gray-600">
                     In Stock: {item.available}
                   </p>
-                  <p className="font-medium">${item.price.toFixed(2)}</p>
+                  <p className="font-medium">₹{item.price.toFixed(2)}</p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <Button
@@ -102,7 +101,7 @@ export default function CartDrawer() {
           <SheetFooter className="flex-col sm:flex-col gap-2">
             <div className="flex justify-between font-semibold text-lg">
               <span>Total:</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>₹{totalPrice.toFixed(2)}</span>
             </div>
             <Button className="w-full">Checkout</Button>
           </SheetFooter>
