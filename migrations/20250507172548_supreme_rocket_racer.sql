@@ -1,0 +1,1 @@
+ALTER TABLE "e_com_purchases" ADD COLUMN "session_id" text;
