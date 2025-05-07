@@ -89,7 +89,10 @@ export async function POST(req: NextRequest) {
     let stripeCustomerId = user.stripeCustomerId;
 
     if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({ email: user.email });
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: current_user.fullName!,
+      });
 
       await db
         .update(usersTable)
