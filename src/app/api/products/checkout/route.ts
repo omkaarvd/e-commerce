@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { productsTable, usersTable } from "@/db/schema";
 import { stripe } from "@/lib/stripe";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { and, eq, gte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -34,10 +34,7 @@ export async function POST(req: NextRequest) {
     const productDetails = await Promise.all(
       products.map(async ({ productId, quantity }) => {
         const product = await db.query.productsTable.findFirst({
-          where: and(
-            eq(productsTable.id, productId),
-            gte(productsTable.available, quantity)
-          ),
+          where: eq(productsTable.id, productId),
           columns: {
             embedding: false,
             createdAt: false,
@@ -45,7 +42,11 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        if (!product) throw new Error("Invalid product");
+        if (!product) throw new Error(`Product not found: ${productId}`);
+
+        if (product.available < quantity) {
+          throw new Error(`Product out of stock: ${product.name}`);
+        }
 
         return {
           name: product.name,
