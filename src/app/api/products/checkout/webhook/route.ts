@@ -1,8 +1,9 @@
-import Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
-import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { purchasesTable } from "@/db/schema";
+import { productsTable, purchasesTable } from "@/db/schema";
+import { stripe } from "@/lib/stripe";
+import { eq, sql } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -25,36 +26,36 @@ export async function POST(req: Request) {
   const userId = session.metadata?.userId;
   const productsRaw = session.metadata?.products;
 
-  const products = productsRaw
-    ? productsRaw.split(",").map((p) => {
-        const arr = p.split(":");
-        return {
-          productId: arr[0],
-          quantity: Number(arr[1]),
-        };
-      })
-    : undefined;
-
   if (event.type === "checkout.session.completed") {
-    if (!userId || !products) {
+    if (!userId || !productsRaw) {
       return new NextResponse(`Webhook Error: Missing metadata`, {
         status: 400,
       });
     }
 
-    await db.insert(purchasesTable).values(
-      products.map(({ productId, quantity }) => ({
-        id: crypto.randomUUID(),
-        userId,
-        productId,
-        quantity,
-      }))
-    );
-  } else {
-    return new Response(`Webhook Error: Unsupported event type ${event.type}`, {
-      status: 200,
+    const products = productsRaw.split(",").map((p) => {
+      const [productId, quantity] = p.split(":");
+      return { productId, quantity: Number(quantity) };
     });
+
+    await Promise.all(
+      products.map(async ({ productId, quantity }) => {
+        // insert the purchase into the database
+        await db
+          .insert(purchasesTable)
+          .values({ id: crypto.randomUUID(), userId, productId, quantity });
+
+        // update the product quantity in the database
+        await db
+          .update(productsTable)
+          .set({ available: sql`${productsTable.available} - ${quantity}` })
+          .where(eq(productsTable.id, productId));
+      })
+    );
+    return new Response(null, { status: 200 });
   }
 
-  return new Response(null, { status: 200 });
+  return new Response(`Webhook Error: Unsupported event type ${event.type}`, {
+    status: 200,
+  });
 }
