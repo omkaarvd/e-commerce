@@ -1,0 +1,1 @@
+ALTER TABLE "e_com_purchases" DROP COLUMN "stripe_session_id";
