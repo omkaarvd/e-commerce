@@ -1,8 +1,9 @@
-import { InferSelectModel } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgTableCreator,
   text,
   timestamp,
@@ -51,12 +52,25 @@ export const usersTable = createTable("users", {
   id: text().notNull().primaryKey(),
   email: text("email").notNull(),
   stripeCustomerId: text("stripe_customer_id"),
+  cart: jsonb("cart")
+    .array()
+    .notNull()
+    .default(sql`ARRAY[]::jsonb[]`),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = InferSelectModel<typeof usersTable>;
+type CartItem = {
+  productId: string;
+  quantity: number;
+};
+
+export type InsertUser = Omit<typeof usersTable.$inferInsert, "cart"> & {
+  cart: CartItem[];
+};
+export type SelectUser = Omit<InferSelectModel<typeof usersTable>, "cart"> & {
+  cart: CartItem[];
+};
 
 export const purchasesTable = createTable("purchases", {
   id: text().notNull().primaryKey(),

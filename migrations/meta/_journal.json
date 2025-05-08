@@ -43,6 +43,13 @@
       "when": 1746644138712,
       "tag": "20250507185538_bright_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1746707844868,
+      "tag": "20250508123724_new_hobgoblin",
+      "breakpoints": true
     }
   ]
 }
