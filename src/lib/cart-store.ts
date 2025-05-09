@@ -1,15 +1,13 @@
 "use client";
 
+import { SelectProduct } from "@/db/schema";
 import { create } from "zustand";
 
-export interface CartItem {
-  id: string;
-  imageURL: string;
-  name: string;
-  size: string;
-  color: string;
-  price: number;
-  available: number;
+export interface CartItem
+  extends Omit<
+    SelectProduct,
+    "description" | "createdAt" | "updatedAt" | "embedding"
+  > {
   quantity: number;
 }
 
