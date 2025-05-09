@@ -43,32 +43,35 @@ export const useCart = create<CartStore>((set, get) => ({
   },
 
   addToCart: async (newItem) => {
-    const products = await addItemToCart({
-      productId: newItem.id,
-      quantity: newItem.quantity,
-    });
+    // Check if the item already exists in the cart (same id, size, and color)
+    const existingItemIndex = get().cartItems.findIndex(
+      (item) =>
+        item.id === newItem.id &&
+        item.size === newItem.size &&
+        item.color === newItem.color
+    );
 
-    set((state) => {
-      // Check if the item already exists in the cart (same id, size, and color)
-      const existingItemIndex = state.cartItems.findIndex(
-        (item) =>
-          item.id === newItem.id &&
-          item.size === newItem.size &&
-          item.color === newItem.color
-      );
-
-      if (existingItemIndex !== -1) {
+    if (existingItemIndex !== -1) {
+      set((state) => {
         // If item exists, increase its quantity
         const updatedItems = [...state.cartItems];
         updatedItems[existingItemIndex].quantity += newItem.quantity;
         return { cartItems: updatedItems };
-      } else {
-        // If item doesn't exist, add it to the cart
-        console.log({ cartItems: products });
+      });
 
-        return { cartItems: products };
-      }
-    });
+      await updateCartItem({
+        productId: newItem.id,
+        quantity: newItem.quantity + 1,
+      });
+    } else {
+      const products = await addItemToCart({
+        productId: newItem.id,
+        quantity: newItem.quantity,
+      });
+
+      // If item doesn't exist, add it to the cart
+      set({ cartItems: products });
+    }
   },
 
   removeFromCart: async (itemToRemove) => {
