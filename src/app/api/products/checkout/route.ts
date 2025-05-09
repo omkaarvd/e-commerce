@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
         quantity,
       }));
 
+    // Skipping Clerk webhook setup (like ngrok) for now — inserting user data manually here.
     // Get user and Stripe customer ID
     let user = await db.query.usersTable.findFirst({
       where: eq(usersTable.id, userId),
