@@ -12,7 +12,6 @@ import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter } from "@/lib/utils";
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function CartDrawer() {
@@ -35,8 +34,6 @@ export default function CartDrawer() {
     0
   );
 
-  const router = useRouter();
-
   const handleCheckout = async () => {
     try {
       const response = await axios.post("/api/products/checkout", {
@@ -51,7 +48,7 @@ export default function CartDrawer() {
       }
 
       if (response.status == 200) {
-        router.push(response.data.url);
+        window.location.assign(response.data.url);
         closeCart();
       }
 
