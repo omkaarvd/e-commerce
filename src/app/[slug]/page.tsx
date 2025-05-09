@@ -1,6 +1,6 @@
 import ProductDisplay from "@/components/product-display";
 import { SelectProduct } from "@/db/schema";
-import axios from "axios";
+import { AXIOS } from "@/lib/axios";
 
 type ProductWithoutMeta = Omit<
   SelectProduct,
@@ -14,8 +14,8 @@ const getProduct = async (
   status: number;
 }> => {
   try {
-    const { data: product } = await axios.get<ProductWithoutMeta>(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${slug}`
+    const { data: product } = await AXIOS.get<ProductWithoutMeta>(
+      `/api/products/${slug}`
     );
 
     return {

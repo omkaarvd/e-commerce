@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { SelectProduct } from "@/db/schema";
+import { AXIOS } from "@/lib/axios";
 import {
   COLORS_FILTERS,
   DEFAULT_CUSTOM_PRICE,
@@ -29,7 +30,6 @@ import {
 import { ProductState } from "@/lib/product-validator";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
 import { use, useCallback, useState } from "react";
@@ -54,7 +54,7 @@ export default function Home(props: PageProps) {
     queryKey: ["products"],
     queryFn: async () => {
       const [filteredProducts, allProducts] = await Promise.all([
-        axios.post<SelectProduct[]>("/api/products", {
+        AXIOS.post<SelectProduct[]>("/api/products", {
           filter: {
             sort: filter.sort,
             color: filter.color,
@@ -65,7 +65,7 @@ export default function Home(props: PageProps) {
           page,
         }),
 
-        axios.get<SelectProduct[]>("/api/products"),
+        AXIOS.get<SelectProduct[]>("/api/products"),
       ]);
 
       return {
