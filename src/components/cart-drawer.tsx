@@ -13,9 +13,11 @@ import { capetalizeFirstLetter } from "@/lib/utils";
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function CartDrawer() {
   const {
+    initCart,
     cartItems,
     isCartOpen,
     closeCart,
@@ -23,6 +25,10 @@ export default function CartDrawer() {
     increaseQuantity,
     decreaseQuantity,
   } = useCart();
+
+  useEffect(() => {
+    initCart();
+  }, [initCart]);
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
