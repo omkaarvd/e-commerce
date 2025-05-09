@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1746528363363,
-      "tag": "20250506104603_clear_dracula",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746559759104,
-      "tag": "20250506192919_clammy_emma_frost",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746638748440,
-      "tag": "20250507172548_supreme_rocket_racer",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1746638889511,
-      "tag": "20250507172809_silent_morg",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1746643808055,
-      "tag": "20250507185008_wet_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1746644138712,
-      "tag": "20250507185538_bright_menace",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1746707844868,
-      "tag": "20250508123724_new_hobgoblin",
+      "when": 1746797229107,
+      "tag": "20250509132709_overconfident_starhawk",
       "breakpoints": true
     }
   ]

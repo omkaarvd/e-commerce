@@ -1,1 +1,0 @@
-ALTER TABLE "e_com_purchases" ADD COLUMN "stripe_session_id" text;

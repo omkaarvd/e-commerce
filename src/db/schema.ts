@@ -1,4 +1,4 @@
-import { InferSelectModel, sql } from "drizzle-orm";
+import { InferSelectModel } from "drizzle-orm";
 import {
   doublePrecision,
   index,
@@ -52,25 +52,12 @@ export const usersTable = createTable("users", {
   id: text().notNull().primaryKey(),
   email: text("email").notNull(),
   stripeCustomerId: text("stripe_customer_id"),
-  cart: jsonb("cart")
-    .array()
-    .notNull()
-    .default(sql`ARRAY[]::jsonb[]`),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-type CartItem = {
-  productId: string;
-  quantity: number;
-};
-
-export type InsertUser = Omit<typeof usersTable.$inferInsert, "cart"> & {
-  cart: CartItem[];
-};
-export type SelectUser = Omit<InferSelectModel<typeof usersTable>, "cart"> & {
-  cart: CartItem[];
-};
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = InferSelectModel<typeof usersTable>;
 
 export const purchasesTable = createTable("purchases", {
   id: text().notNull().primaryKey(),
@@ -87,3 +74,23 @@ export const purchasesTable = createTable("purchases", {
 
 export type InsertPurchase = typeof purchasesTable.$inferInsert;
 export type SelectPurchase = InferSelectModel<typeof purchasesTable>;
+
+export const cartTable = createTable("cart", {
+  userId: text("user_id")
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .primaryKey(),
+  items: jsonb("items")
+    .$type<
+      {
+        productId: string;
+        quantity: number;
+      }[]
+    >()
+    .default([])
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertCart = typeof cartTable.$inferInsert;
+export type SelectCart = InferSelectModel<typeof cartTable>;

@@ -1,9 +1,63 @@
 {
-  "id": "375831eb-e210-40e8-9970-af19aaacfd29",
-  "prevId": "0947313c-e49e-4f0d-af87-152d64c5397a",
+  "id": "1b9d54c8-5b25-4919-aa3c-0371d582e55e",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.e_com_cart": {
+      "name": "e_com_cart",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "items": {
+          "name": "items",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "e_com_cart_user_id_e_com_users_id_fk": {
+          "name": "e_com_cart_user_id_e_com_users_id_fk",
+          "tableFrom": "e_com_cart",
+          "tableTo": "e_com_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.e_com_products": {
       "name": "e_com_products",
       "schema": "",

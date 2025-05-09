@@ -1,1 +1,0 @@
-ALTER TABLE "e_com_users" ADD COLUMN "cart" jsonb[] DEFAULT ARRAY[]::jsonb[] NOT NULL;
