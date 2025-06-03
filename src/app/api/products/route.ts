@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest) => {
       .from(productsTable)
       .where(and(...filters))
       .limit(limit)
-      .offset((page - 1) * limit);
+      .offset(Math.abs(page - 1) * limit);
 
     if (sort === "price-asc") {
       query.orderBy(asc(productsTable.price));
