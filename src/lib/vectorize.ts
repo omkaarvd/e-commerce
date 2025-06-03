@@ -1,12 +1,17 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export const vectorize = async (input: string): Promise<number[]> => {
   try {
-    const result = await model.embedContent(input);
-    return result.embedding.values;
+    const result = await genAI.models.embedContent({
+      model: "text-embedding-004",
+      contents: input,
+    });
+    if (result.embeddings) {
+      return result.embeddings[0].values ?? [];
+    }
+    return [];
   } catch (error) {
     console.error(error);
     return [];
