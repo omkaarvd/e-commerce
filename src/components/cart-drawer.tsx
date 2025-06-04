@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 
 export default function CartDrawer() {
+  const { isSignedIn } = useUser();
   const {
     initCart,
     cartItems,
@@ -26,8 +28,10 @@ export default function CartDrawer() {
   } = useCart();
 
   useEffect(() => {
+    if (!isSignedIn) return;
+
     initCart();
-  }, [initCart]);
+  }, [initCart, isSignedIn]);
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,

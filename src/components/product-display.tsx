@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SelectProduct } from "@/db/schema";
 import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter, cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 import { ShoppingCart } from "lucide-react";
 
 type ProductWithoutMeta = Omit<
@@ -16,9 +17,15 @@ export default function ProductDisplay({
 }: {
   product: ProductWithoutMeta;
 }) {
+  const { isSignedIn } = useUser();
   const { addToCart, openCart, cartItems } = useCart();
 
   const handleAddToCart = () => {
+    if (!isSignedIn) {
+      alert("Please, login to continue!");
+      return;
+    }
+
     if (product.available === 0) return;
 
     const currentCartItem = cartItems.find(
