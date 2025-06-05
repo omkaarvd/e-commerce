@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
+    console.error("Stripe webhook signature verification failed:", err);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -28,6 +29,10 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     if (!userId || !productsRaw) {
+      console.error("Missing metadata in Stripe session:", {
+        userId,
+        productsRaw,
+      });
       return new NextResponse(`Webhook Error: Missing metadata`, {
         status: 400,
       });
@@ -38,23 +43,30 @@ export async function POST(req: Request) {
       return { productId, quantity: Number(quantity) };
     });
 
-    await Promise.all(
-      products.map(async ({ productId, quantity }) => {
-        // insert the purchase into the database
-        await db
-          .insert(purchasesTable)
-          .values({ id: crypto.randomUUID(), userId, productId, quantity });
+    try {
+      await Promise.all(
+        products.map(async ({ productId, quantity }) => {
+          // insert the purchase into the database
+          await db
+            .insert(purchasesTable)
+            .values({ id: crypto.randomUUID(), userId, productId, quantity });
 
-        // update the product quantity in the database
-        await db
-          .update(productsTable)
-          .set({ available: sql`${productsTable.available} - ${quantity}` })
-          .where(eq(productsTable.id, productId));
-      })
-    );
-    return new Response(null, { status: 200 });
+          // update the product quantity in the database
+          await db
+            .update(productsTable)
+            .set({ available: sql`${productsTable.available} - ${quantity}` })
+            .where(eq(productsTable.id, productId));
+        })
+      );
+      return new Response(null, { status: 200 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Database error during purchase processing:", err);
+      return new Response(`Webhook Error: Database error`, { status: 500 });
+    }
   }
 
+  console.warn(`Received unsupported event type: ${event.type}`);
   return new Response(`Webhook Error: Unsupported event type ${event.type}`, {
     status: 200,
   });
