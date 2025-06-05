@@ -1,8 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { productsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { cartTable, productsTable } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { eq, sql } from "drizzle-orm";
 import { MinifiedCartItem } from "./cart-api";
 import { CartItem } from "./cart-store";
 
@@ -33,5 +34,34 @@ export async function getCartProducts(
     console.log("Failed to get all items:", err);
 
     return [];
+  }
+}
+
+export async function cleanCart() {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      console.warn("Error in cleaning cart. Invalid Request!");
+      return;
+    }
+
+    const cart = await db.query.cartTable.findFirst({
+      where: eq(cartTable.userId, userId),
+    });
+
+    if (!cart) {
+      console.warn("Error in cleaning cart. No cart found!");
+      return;
+    }
+
+    await db
+      .update(cartTable)
+      .set({ items: sql`'[]'::jsonb` })
+      .where(eq(cartTable.userId, userId));
+
+    console.log("Cart cleaned successfully");
+  } catch (err) {
+    console.log("Failed to clean the Cart:", err);
   }
 }

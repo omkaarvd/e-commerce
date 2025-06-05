@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       billing_address_collection: "required",
       shipping_address_collection: { allowed_countries: ["IN", "US", "CA"] },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/thank-you`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/thank-you?u=${userId}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}`,
       metadata: {
         userId,
