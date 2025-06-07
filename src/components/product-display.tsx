@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { SelectProduct } from "@/db/schema";
 import { useCart } from "@/lib/cart-store";
-import { capetalizeFirstLetter, cn } from "@/lib/utils";
+import { capetalizeFirstLetter, cn, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { ShoppingCart } from "lucide-react";
 
@@ -70,7 +70,7 @@ export default function ProductDisplay({
       {/* Product Details */}
       <div className="flex flex-col space-y-6">
         <h1 className="text-3xl font-bold">{product.name}</h1>
-        <p className="text-2xl font-semibold">₹{product.price.toFixed(2)}</p>
+        <p className="text-2xl font-semibold">{formatPrice(product.price)}</p>
 
         <div>
           <h2 className="font-medium">{`Size: ${product.size}`}</h2>

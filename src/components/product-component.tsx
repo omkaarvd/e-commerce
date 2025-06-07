@@ -1,5 +1,5 @@
 import { SelectProduct } from "@/db/schema";
-import { capetalizeFirstLetter, cn } from "@/lib/utils";
+import { capetalizeFirstLetter, cn, formatPrice } from "@/lib/utils";
 import Link from "next/link";
 
 export default function Product({ product }: { product: SelectProduct }) {
@@ -18,7 +18,7 @@ export default function Product({ product }: { product: SelectProduct }) {
         <div className="mt-4 flex flex-col justify-between">
           <div className="flex flex-row justify-between items-center text-gray-900">
             <p>{product.name}</p>
-            <p>₹{product.price}</p>
+            <p>{formatPrice(product.price)}</p>
           </div>
 
           <div className="flex flex-row justify-between items-center text-gray-500">

@@ -28,7 +28,7 @@ import {
   SORT_OPTIONS,
 } from "@/lib/filters";
 import { ProductState } from "@/lib/product-validator";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
@@ -283,8 +283,8 @@ export default function Home(props: PageProps) {
                         <p className="font-medium">Price</p>
 
                         <div>
-                          ₹{filter.price.range[0].toFixed(0)} - ₹
-                          {filter.price.range[1].toFixed(0)}
+                          {`${formatPrice(filter.price.range[0], 0)} - 
+                          ${formatPrice(filter.price.range[1], 0)}`}
                         </div>
                       </div>
 

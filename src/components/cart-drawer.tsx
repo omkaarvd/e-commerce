@@ -9,7 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart-store";
-import { capetalizeFirstLetter } from "@/lib/utils";
+import { capetalizeFirstLetter, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -97,7 +97,7 @@ export default function CartDrawer() {
                   <p className="text-sm text-gray-600">
                     In Stock: {item.available}
                   </p>
-                  <p className="font-medium">₹{item.price.toFixed(2)}</p>
+                  <p className="font-medium">{formatPrice(item.price)}</p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <Button
@@ -138,7 +138,7 @@ export default function CartDrawer() {
           <SheetFooter className="flex-col sm:flex-col gap-2">
             <div className="flex justify-between font-semibold text-lg">
               <span>Total:</span>
-              <span>₹{totalPrice.toFixed(2)}</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
             <Button className="w-full" onClick={handleCheckout}>
               Checkout

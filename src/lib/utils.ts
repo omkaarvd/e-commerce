@@ -19,9 +19,9 @@ export const formatDate = (dateString: string | Date | null) => {
   });
 };
 
-export const formatPrice = (price: number) => {
+export const formatPrice = (price: number, maximumFractionDigits?: number) => {
   return price.toLocaleString("en-IN", {
-    maximumFractionDigits: 2,
+    maximumFractionDigits: maximumFractionDigits ?? 2,
     style: "currency",
     currency: "INR",
   });
