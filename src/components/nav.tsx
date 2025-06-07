@@ -5,6 +5,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { History } from "lucide-react";
 import Link from "next/link";
 import CartIcon from "./cart-icon";
 import { Button } from "./ui/button";
@@ -28,6 +29,12 @@ export default function Nav() {
           <SignedIn>
             <UserButton />
           </SignedIn>
+
+          <Button variant="outline" size="icon" className="relative" asChild>
+            <Link href="/orders">
+              <History className="size-5" />
+            </Link>
+          </Button>
 
           <CartIcon />
         </div>
