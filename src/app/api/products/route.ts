@@ -1,18 +1,7 @@
 import { db } from "@/db";
 import { productsTable, SelectProduct } from "@/db/schema";
 import { ProductFilterValidator } from "@/lib/product-validator";
-import { vectorize } from "@/lib/vectorize";
-import {
-  and,
-  asc,
-  between,
-  cosineDistance,
-  desc,
-  gt,
-  inArray,
-  sql,
-  SQL,
-} from "drizzle-orm";
+import { and, asc, between, desc, inArray, sql, SQL } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -46,25 +35,27 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (params) {
-      const embedding = await vectorize(params);
-      const similarity = sql<number>`1 - (${cosineDistance(
-        productsTable.embedding,
-        embedding
-      )})`;
+      // const embedding = await vectorize(params);
+      // const similarity = sql<number>`1 - (${cosineDistance(
+      //   productsTable.embedding,
+      //   embedding
+      // )})`;
 
-      /* semantic search */
-      filters.push(gt(similarity, 0.6));
+      // /* semantic search */
+      // filters.push(gt(similarity, 0.6));
 
       /* Full text search */
-      // filters.push(
-      //   // sql`to_tsvector(${productsTable.name}) @@ plainto_tsquery(${params})`
-      //   sql`to_tsvector('simple', lower(${productsTable.name} || ' ' || ${
-      //     productsTable.description
-      //   })) @@ to_tsquery('simple', lower(${params
-      //     .trim()
-      //     .split(" ")
-      //     .join(" & ")}))`
-      // );
+      filters.push(
+        // sql`to_tsvector(${productsTable.name}) @@ plainto_tsquery(${params})`
+        sql`to_tsvector('simple', lower(${productsTable.name} || ' ' || ${
+          productsTable.color
+        } || ' ' || ${
+          productsTable.description
+        })) @@ to_tsquery('simple', lower(${params
+          .trim()
+          .split(" ")
+          .join(" & ")}))`
+      );
     }
 
     const limit = 9;

@@ -1,4 +1,3 @@
-import { vectorize } from "@/lib/vectorize";
 import { db } from ".";
 import { InsertProduct, productsTable } from "./schema";
 
@@ -44,9 +43,7 @@ const seedTshirts = async () => {
           size,
           price,
           description: DESCRIPTIONS[color],
-          embedding: await vectorize(
-            `${name}: ${DESCRIPTIONS[color]} Color: ${color}, Size: ${size}, Price: ${price}`
-          ),
+          embedding: [],
           available: getRandomBet1to10(),
         });
       }
@@ -298,9 +295,7 @@ async function seedJackets() {
   ];
 
   const embeddingPromises = products.map(async (product) => {
-    product.embedding = await vectorize(
-      `${product.name}: ${product.description}, Color: ${product.color}, Size: ${product.size}, Price: ${product.price}`
-    );
+    product.embedding = [];
     return product;
   });
 
