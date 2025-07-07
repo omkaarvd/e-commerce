@@ -50,7 +50,12 @@ export default function Home(props: PageProps) {
   const query = searchParams.query;
   const page = searchParams.page || "1";
 
-  const { data: products, refetch: refetchProducts } = useQuery({
+  const {
+    data: products,
+    refetch: refetchProducts,
+    // isPending: isPendingProducts,
+    isFetching: isFetchingProducts,
+  } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const [filteredProducts, allProducts] = await Promise.all([
@@ -323,11 +328,11 @@ export default function Home(props: PageProps) {
 
           {/* product grid */}
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {!products ? (
+            {isFetchingProducts ? (
               new Array(9)
                 .fill(null)
                 .map((_, idx) => <ProductSkeleton key={idx} />)
-            ) : products.data.length === 0 ? (
+            ) : !products || products.data.length === 0 ? (
               <EmptyState />
             ) : (
               products.data.map((product) => (
