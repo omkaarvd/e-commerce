@@ -1,34 +1,43 @@
 import { Loader2, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-export default function SearchBar({ refetch }: { refetch: () => void }) {
+export default function SearchBar({
+  refetch,
+  defaultValue,
+}: {
+  refetch: () => void;
+  defaultValue: string;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSearching, startTransition] = useTransition();
   const router = useRouter();
-  const [query, setQuery] = useState("");
   const searchParams = useSearchParams();
 
   const handleSearch = () => {
-    const trimmedQuery = query.trim();
+    let query = "";
+    if (inputRef.current) {
+      query = inputRef.current.value.trim();
+    }
+
     const newSearchParams = new URLSearchParams(searchParams);
 
     startTransition(() => {
-      if (trimmedQuery === "") {
-        newSearchParams.delete("query");
+      if (query === "") {
+        if (newSearchParams.has("query")) {
+          newSearchParams.delete("query");
+          refetch();
+        }
       } else {
-        newSearchParams.set("query", trimmedQuery);
+        newSearchParams.set("query", query);
+        refetch();
       }
 
       router.push(`/?${newSearchParams.toString()}`);
     });
   };
-
-  useEffect(() => {
-    refetch();
-  }, [query]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,8 +46,6 @@ export default function SearchBar({ refetch }: { refetch: () => void }) {
         inputRef.current?.focus();
       }
     };
-
-    setQuery(searchParams.get("query") || "");
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -56,8 +63,7 @@ export default function SearchBar({ refetch }: { refetch: () => void }) {
             inputRef.current?.blur();
           }
         }}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        defaultValue={defaultValue}
         disabled={isSearching}
         ref={inputRef}
         placeholder="Search..."

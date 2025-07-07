@@ -105,7 +105,7 @@ export default function Home(props: PageProps) {
   return (
     <>
       <div className="flex items-center justify-between gap-4 border-gray-200 py-6">
-        <SearchBar refetch={debouncedRefetch} />
+        <SearchBar refetch={debouncedRefetch} defaultValue={query || ""} />
 
         <div className="flex items-center">
           <DropdownMenu>
