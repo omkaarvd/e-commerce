@@ -12,20 +12,23 @@ export default function SearchBar({ refetch }: { refetch: () => void }) {
   const searchParams = useSearchParams();
 
   const handleSearch = () => {
+    const trimmedQuery = query.trim();
     const newSearchParams = new URLSearchParams(searchParams);
 
     startTransition(() => {
-      newSearchParams.set("query", query);
+      if (trimmedQuery === "") {
+        newSearchParams.delete("query");
+      } else {
+        newSearchParams.set("query", trimmedQuery);
+      }
 
-      if (query === "") newSearchParams.delete("query");
-
-      router.push(`/?${newSearchParams}`);
+      router.push(`/?${newSearchParams.toString()}`);
     });
-
-    if (query) {
-      refetch();
-    }
   };
+
+  useEffect(() => {
+    refetch();
+  }, [query]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
