@@ -43,7 +43,6 @@ const seedTshirts = async () => {
           size,
           price,
           description: DESCRIPTIONS[color],
-          embedding: [],
           available: getRandomBet1to10(),
         });
       }
@@ -60,7 +59,7 @@ const seedTshirts = async () => {
 seedTshirts();
 
 async function seedJackets() {
-  let products: InsertProduct[] = [
+  const products: InsertProduct[] = [
     {
       id: "dark_down_jacket_1",
       name: "Dark Down Jacket 1",
@@ -293,13 +292,6 @@ async function seedJackets() {
         "A comfortable wind jacket designed to keep you warm during winter or rain. With a minimal light grey color it suits the rest of your outfit well.",
     },
   ];
-
-  const embeddingPromises = products.map(async (product) => {
-    product.embedding = [];
-    return product;
-  });
-
-  products = await Promise.all(embeddingPromises);
 
   try {
     await db.insert(productsTable).values(products);

@@ -10,10 +10,7 @@ import {
 } from "./cart-api";
 
 export interface CartItem
-  extends Omit<
-    SelectProduct,
-    "description" | "createdAt" | "updatedAt" | "embedding"
-  > {
+  extends Omit<SelectProduct, "description" | "createdAt" | "updatedAt"> {
   quantity: number;
 }
 

@@ -8,10 +8,7 @@ import { capetalizeFirstLetter, cn, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { ShoppingCart } from "lucide-react";
 
-type ProductWithoutMeta = Omit<
-  SelectProduct,
-  "createdAt" | "updatedAt" | "embedding"
->;
+type ProductWithoutMeta = Omit<SelectProduct, "createdAt" | "updatedAt">;
 
 export default function ProductDisplay({
   product,

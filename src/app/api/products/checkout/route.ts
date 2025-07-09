@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
         const product = await db.query.productsTable.findFirst({
           where: eq(productsTable.id, productId),
           columns: {
-            embedding: false,
             createdAt: false,
             updatedAt: false,
           },

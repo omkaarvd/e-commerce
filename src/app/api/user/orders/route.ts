@@ -34,7 +34,6 @@ export const GET = async () => {
           where: eq(productsTable.id, productId),
           columns: {
             id: false,
-            embedding: false,
             createdAt: false,
             updatedAt: false,
           },

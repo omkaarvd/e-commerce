@@ -19,7 +19,6 @@ export async function getCartProducts(
             description: false,
             createdAt: false,
             updatedAt: false,
-            embedding: false,
           },
         });
 
