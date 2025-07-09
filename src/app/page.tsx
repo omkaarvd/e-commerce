@@ -329,9 +329,9 @@ export default function Home(props: PageProps) {
           {/* product grid */}
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {isFetchingProducts ? (
-              new Array(9)
-                .fill(null)
-                .map((_, idx) => <ProductSkeleton key={idx} />)
+              Array.from({ length: 9 }).map((_, idx) => (
+                <ProductSkeleton key={idx} />
+              ))
             ) : !products || products.data.length === 0 ? (
               <EmptyState />
             ) : (
