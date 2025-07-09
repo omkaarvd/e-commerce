@@ -95,17 +95,3 @@ export const POST = async (req: NextRequest) => {
     });
   }
 };
-
-export const GET = async () => {
-  try {
-    const products = await db.select().from(productsTable);
-
-    return new Response(JSON.stringify(products));
-  } catch (err) {
-    console.error(err);
-
-    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
-      status: 500,
-    });
-  }
-};
