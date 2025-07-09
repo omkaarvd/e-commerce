@@ -47,6 +47,12 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const count = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(productsTable)
+      .where(and(...filters))
+      .then((res) => res[0].count || 0);
+
     const limit = 9;
 
     const query = db
@@ -62,11 +68,9 @@ export const POST = async (req: NextRequest) => {
       query.orderBy(desc(productsTable.price));
     }
 
-    const products: SelectProduct[] = await query;
+    const data: SelectProduct[] = await query;
 
-    const count = await db.$count(productsTable);
-
-    return new Response(JSON.stringify({ products, count }));
+    return new Response(JSON.stringify({ data, count }));
   } catch (err) {
     console.error(err);
 

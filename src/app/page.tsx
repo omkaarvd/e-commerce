@@ -59,7 +59,7 @@ export default function Home(props: PageProps) {
     queryKey: ["products"],
     queryFn: async () => {
       const { data } = await AXIOS.post<{
-        products: SelectProduct[];
+        data: SelectProduct[];
         count: number;
       }>("/api/products", {
         filter: {
@@ -72,10 +72,7 @@ export default function Home(props: PageProps) {
         page,
       });
 
-      return {
-        data: data.products,
-        count: query ? data.products.length : data.count,
-      };
+      return data;
     },
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60,
