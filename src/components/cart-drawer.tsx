@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { AXIOS } from "@/lib/axios";
 import { useCart } from "@/lib/cart-store";
+import { WarningToast } from "@/lib/toast";
 import { capetalizeFirstLetter, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
@@ -59,14 +60,14 @@ export default function CartDrawer() {
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          alert("Unauthorized. Please log in to proceed.");
+          WarningToast("Unauthorized. Please sign in to proceed.");
         } else {
           const message = error.response?.data?.message || "Checkout failed.";
-          alert(message);
+          WarningToast(message);
         }
       } else {
         console.error("Unexpected error during checkout", error);
-        alert("Unexpected error occurred. Please try again.");
+        WarningToast("Unexpected error occurred. Please try again.");
       }
     }
   };

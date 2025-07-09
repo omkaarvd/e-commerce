@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { SelectProduct } from "@/db/schema";
 import { useCart } from "@/lib/cart-store";
+import { WarningToast } from "@/lib/toast";
 import { capetalizeFirstLetter, cn, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { ShoppingCart } from "lucide-react";
@@ -22,7 +23,7 @@ export default function ProductDisplay({
 
   const handleAddToCart = () => {
     if (!isSignedIn) {
-      alert("Please, login to continue!");
+      WarningToast("Please, sign in to continue!");
       return;
     }
 
@@ -37,7 +38,7 @@ export default function ProductDisplay({
     const currentQuantity = currentCartItem ? currentCartItem.quantity : 0;
 
     if (currentQuantity + 1 > product.available) {
-      alert("Cannot add more than available stock to cart.");
+      WarningToast("Cannot add more than available stock to cart.");
       return;
     }
 
