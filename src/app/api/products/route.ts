@@ -35,26 +35,15 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (params) {
-      // const embedding = await vectorize(params);
-      // const similarity = sql<number>`1 - (${cosineDistance(
-      //   productsTable.embedding,
-      //   embedding
-      // )})`;
-
-      // /* semantic search */
-      // filters.push(gt(similarity, 0.6));
-
       /* Full text search */
       filters.push(
-        // sql`to_tsvector(${productsTable.name}) @@ plainto_tsquery(${params})`
-        sql`to_tsvector('simple', lower(${productsTable.name} || ' ' || ${
-          productsTable.color
-        } || ' ' || ${
-          productsTable.description
-        })) @@ to_tsquery('simple', lower(${params
-          .trim()
-          .split(" ")
-          .join(" & ")}))`
+        sql`(
+          setweight(to_tsvector('english', ${productsTable.name}), 'A') ||
+          setweight(to_tsvector('english', ${
+            productsTable.description
+          }), 'B') ||
+          setweight(to_tsvector('english', ${productsTable.color}), 'B')
+          ) @@ to_tsquery('english', ${params.trim().split(" ").join(" & ")})`
       );
     }
 
