@@ -1,6 +1,7 @@
 import CartDrawer from "@/components/cart-drawer";
 import Nav from "@/components/nav";
 import Providers from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -38,6 +39,7 @@ export default function RootLayout({
               {children}
             </main>
             <CartDrawer />
+            <Toaster />
           </Providers>
         </ClerkProvider>
       </body>
