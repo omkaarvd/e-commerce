@@ -7,8 +7,8 @@ import { z } from "zod";
 
 const RequestBodyValidator = z.object({
   filter: ProductFilterValidator,
-  query: z.string().optional(),
-  page: z.string().optional(),
+  query: z.string().nullable(),
+  page: z.string().nullable(),
 });
 
 export const POST = async (req: NextRequest) => {
