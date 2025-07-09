@@ -47,20 +47,26 @@ export default function CartDrawer() {
         })),
       });
 
-      if (response.status == 401) {
-        alert("Unauthorized. Please log in to proceed.");
-      }
+      const { url } = response.data;
 
-      if (response.status == 200) {
-        window.location.assign(response.data.url);
-        closeCart();
+      if (!url) {
+        throw new Error("Checkout URL not received.");
       }
+      closeCart();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      alert(
-        error.response?.data?.message || "An error occurred during checkout."
-      );
+      window.location.assign(response.data.url);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          alert("Unauthorized. Please log in to proceed.");
+        } else {
+          const message = error.response?.data?.message || "Checkout failed.";
+          alert(message);
+        }
+      } else {
+        console.error("Unexpected error during checkout", error);
+        alert("Unexpected error occurred. Please try again.");
+      }
     }
   };
 
