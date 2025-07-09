@@ -78,6 +78,8 @@ export default function Home(props: PageProps) {
         count: query ? filteredProducts.data.length : allProducts.data.length,
       };
     },
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60,
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
