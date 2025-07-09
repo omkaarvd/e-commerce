@@ -58,24 +58,23 @@ export default function Home(props: PageProps) {
   } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const [filteredProducts, allProducts] = await Promise.all([
-        AXIOS.post<SelectProduct[]>("/api/products", {
-          filter: {
-            sort: filter.sort,
-            color: filter.color,
-            price: filter.price.range,
-            size: filter.size,
-          },
-          query,
-          page,
-        }),
-
-        AXIOS.get<SelectProduct[]>("/api/products"),
-      ]);
+      const { data } = await AXIOS.post<{
+        products: SelectProduct[];
+        count: number;
+      }>("/api/products", {
+        filter: {
+          sort: filter.sort,
+          color: filter.color,
+          price: filter.price.range,
+          size: filter.size,
+        },
+        query,
+        page,
+      });
 
       return {
-        data: filteredProducts.data,
-        count: query ? filteredProducts.data.length : allProducts.data.length,
+        data: data.products,
+        count: query ? data.products.length : data.count,
       };
     },
     refetchOnWindowFocus: false,

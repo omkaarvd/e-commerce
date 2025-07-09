@@ -75,7 +75,9 @@ export const POST = async (req: NextRequest) => {
 
     const products: SelectProduct[] = await query;
 
-    return new Response(JSON.stringify(products));
+    const count = await db.$count(productsTable);
+
+    return new Response(JSON.stringify({ products, count }));
   } catch (err) {
     console.error(err);
 
