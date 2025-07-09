@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { AXIOS } from "@/lib/axios";
 import { useCart } from "@/lib/cart-store";
 import { capetalizeFirstLetter, formatPrice } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
@@ -40,7 +41,7 @@ export default function CartDrawer() {
 
   const handleCheckout = async () => {
     try {
-      const response = await axios.post("/api/products/checkout", {
+      const response = await AXIOS.post("/api/products/checkout", {
         products: cartItems.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
