@@ -6,12 +6,6 @@ import Product from "@/components/product-component";
 import ProductSkeleton from "@/components/product-skeleton";
 import SearchBar from "@/components/search-bar";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,7 +17,6 @@ import { AXIOS } from "@/lib/axios";
 import {
   COLORS_FILTERS,
   DEFAULT_CUSTOM_PRICE,
-  PRICE_FILTERS,
   SIZE_FILTERS,
   SORT_OPTIONS,
 } from "@/lib/filters";
@@ -32,41 +25,64 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
-import { use, useCallback, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, useMemo } from "react";
 
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-};
+export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-export default function Home(props: PageProps) {
-  const [filter, setFilter] = useState<ProductState>({
-    sort: "none",
-    color: [],
-    price: { is_custom: false, range: DEFAULT_CUSTOM_PRICE },
-    size: [],
-  });
+  const initialState = useMemo(() => {
+    const colorParam = searchParams.get("color");
+    const sizeParam = searchParams.get("size");
+    const priceParam = searchParams.get("price");
+    const sortParam = searchParams.get("sort");
 
-  const searchParams = use(props.searchParams);
-  const query = searchParams.query;
-  const page = searchParams.page || "1";
+    return {
+      sort: (sortParam as ProductState["sort"]) || "none",
+      color: colorParam ? (colorParam.split(",") as never) : [],
+      size: sizeParam ? (sizeParam.split(",") as never) : [],
+      price: {
+        range: priceParam
+          ? (priceParam.split("-").map(Number) as [number, number])
+          : DEFAULT_CUSTOM_PRICE,
+      },
+    };
+  }, [searchParams]);
+
+  // Single source of truth for filter state
+  const [filterState, setFilterState] = useState<ProductState>(initialState);
+
+  // Temporary UI state for slider (only for price slider interaction)
+  const [tempSliderValue, setTempSliderValue] = useState<[number, number]>(
+    filterState.price.range
+  );
+
+  const query = searchParams.get("query");
+  const page = searchParams.get("page") || "1";
+
+  // Sync state when URL changes (back/forward navigation)
+  useEffect(() => {
+    setFilterState(initialState);
+    setTempSliderValue(initialState.price.range);
+  }, [initialState]);
 
   const {
     data: products,
     refetch: refetchProducts,
-    // isPending: isPendingProducts,
     isFetching: isFetchingProducts,
   } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", filterState, query, page],
     queryFn: async () => {
       const { data } = await AXIOS.post<{
         data: SelectProduct[];
         count: number;
       }>("/api/products", {
         filter: {
-          sort: filter.sort,
-          color: filter.color,
-          price: filter.price.range,
-          size: filter.size,
+          sort: filterState.sort,
+          color: filterState.color,
+          price: filterState.price.range,
+          size: filterState.size,
         },
         query,
         page,
@@ -81,29 +97,83 @@ export default function Home(props: PageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedRefetch = useCallback(debounce(refetchProducts, 700), []);
 
+  const updateSearchParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value) {
+          newSearchParams.set(key, value);
+        } else {
+          newSearchParams.delete(key);
+        }
+      });
+
+      router.push(`/?${newSearchParams.toString()}`);
+    },
+    [router, searchParams]
+  );
+
   const applyColorAndSizeFilter = ({
     category,
     value,
   }: {
-    category: keyof Omit<typeof filter, "price" | "sort">;
+    category: keyof Omit<ProductState, "price" | "sort">;
     value: string;
   }) => {
-    const isFilterExist = filter[category].includes(value as never);
+    setFilterState((prev) => {
+      const prevValues = prev[category];
+      const updatedValues = prevValues.includes(value as never)
+        ? prevValues.filter((val) => val !== value)
+        : [...prevValues, value];
 
-    if (isFilterExist) {
-      setFilter((prev) => ({
+      updateSearchParams({
+        [category]: updatedValues.length > 0 ? updatedValues.join(",") : null,
+        page: "1",
+      });
+
+      return {
         ...prev,
-        [category]: prev[category].filter((val) => val !== value),
-      }));
-    } else {
-      setFilter((prev) => ({
-        ...prev,
-        [category]: [...prev[category], value],
-      }));
-    }
+        [category]: updatedValues,
+      };
+    });
 
     debouncedRefetch();
   };
+
+  const handleSortChange = useCallback(
+    (sortValue: ProductState["sort"]) => {
+      setFilterState((prev) => ({
+        ...prev,
+        sort: sortValue,
+      }));
+
+      updateSearchParams({
+        sort: sortValue !== "none" ? sortValue : null,
+        page: "1",
+      });
+
+      debouncedRefetch();
+    },
+    [debouncedRefetch, updateSearchParams]
+  );
+
+  const handleSliderChange = useCallback((range: [number, number]) => {
+    setTempSliderValue(range);
+
+    setFilterState((prev) => ({
+      ...prev,
+      price: { range },
+    }));
+
+    updateSearchParams({
+      price: `${range[0]}-${range[1]}`,
+      page: "1",
+    });
+
+    debouncedRefetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -121,14 +191,11 @@ export default function Home(props: PageProps) {
               {SORT_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
-                  onClick={() => {
-                    setFilter((prev) => ({ ...prev, sort: option.value }));
-
-                    debouncedRefetch();
-                  }}
+                  onClick={() => handleSortChange(option.value)}
                   className={cn("text-base", {
-                    "text-gray-900 bg-gray-100": filter.sort === option.value,
-                    "text-gray-500": filter.sort !== option.value,
+                    "text-gray-900 bg-gray-100":
+                      filterState.sort === option.value,
+                    "text-gray-500": filterState.sort !== option.value,
                   })}
                 >
                   {option.label}
@@ -146,182 +213,87 @@ export default function Home(props: PageProps) {
       <section className="pb-12 pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
           {/* filters */}
-          <div className="hidden lg:block">
-            <Accordion type="multiple">
-              {/* Color filter */}
-              <AccordionItem value="color">
-                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
-                  <span className="font-medium text-gray-900">Color</span>
-                </AccordionTrigger>
+          <div className="hidden lg:block space-y-8">
+            {/* Color filter */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Color</h3>
+              <div className="space-y-4">
+                {COLORS_FILTERS.options.map((option, idx) => (
+                  <div key={option.value} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`color-${idx}`}
+                      className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      onChange={() => {
+                        applyColorAndSizeFilter({
+                          category: "color",
+                          value: option.value,
+                        });
+                      }}
+                      checked={filterState.color.includes(option.value)}
+                    />
+                    <label
+                      htmlFor={`color-${idx}`}
+                      className="ml-3 text-gray-600 text-sm"
+                    >
+                      {option.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                <AccordionContent>
-                  <ul className="space-y-4">
-                    {COLORS_FILTERS.options.map((option, idx) => (
-                      <li key={option.value} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`color-${idx}`}
-                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          onChange={() => {
-                            applyColorAndSizeFilter({
-                              category: "color",
-                              value: option.value,
-                            });
-                          }}
-                          checked={filter.color.includes(option.value)}
-                        />
-                        <label
-                          htmlFor={`color-${idx}`}
-                          className="ml-3 text-gray-600 text-sm"
-                        >
-                          {option.label}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
+            {/* Size filter */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Size</h3>
+              <div className="space-y-4">
+                {SIZE_FILTERS.options.map((option, idx) => (
+                  <div key={option.value} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`size-${idx}`}
+                      className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      onChange={() => {
+                        applyColorAndSizeFilter({
+                          category: "size",
+                          value: option.value,
+                        });
+                      }}
+                      checked={filterState.size.includes(option.value)}
+                    />
+                    <label
+                      htmlFor={`size-${idx}`}
+                      className="ml-3 text-gray-600 text-sm"
+                    >
+                      {option.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              {/* Size filter */}
-              <AccordionItem value="size">
-                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
-                  <span className="font-medium text-gray-900">Size</span>
-                </AccordionTrigger>
+            {/* Price filter */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Price</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <p className="font-medium text-gray-700">Range</p>
+                  <div className="text-sm text-gray-600">
+                    {formatPrice(filterState.price.range[0], 0)} -{" "}
+                    {formatPrice(filterState.price.range[1], 0)}
+                  </div>
+                </div>
 
-                <AccordionContent>
-                  <ul className="space-y-4">
-                    {SIZE_FILTERS.options.map((option, idx) => (
-                      <li key={option.value} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`size-${idx}`}
-                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          onChange={() => {
-                            applyColorAndSizeFilter({
-                              category: "size",
-                              value: option.value,
-                            });
-                          }}
-                          checked={filter.size.includes(option.value)}
-                        />
-                        <label
-                          htmlFor={`size-${idx}`}
-                          className="ml-3 text-gray-600 text-sm"
-                        >
-                          {option.label}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Price filter */}
-              <AccordionItem value="price">
-                <AccordionTrigger className="py-3 text-gray-400 hover:text-gray-500">
-                  <span className="font-medium text-gray-900">Price</span>
-                </AccordionTrigger>
-
-                <AccordionContent>
-                  <ul className="space-y-4">
-                    {PRICE_FILTERS.options.map((option, idx) => (
-                      <li key={option.label} className="flex items-center">
-                        <input
-                          type="radio"
-                          id={`price-${idx}`}
-                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          onChange={() => {
-                            setFilter((prev) => ({
-                              ...prev,
-                              price: {
-                                is_custom: false,
-                                range: [...option.value],
-                              },
-                            }));
-
-                            debouncedRefetch();
-                          }}
-                          checked={
-                            !filter.price.is_custom &&
-                            option.value[0] === filter.price.range[0] &&
-                            option.value[1] === filter.price.range[1]
-                          }
-                        />
-                        <label
-                          htmlFor={`price-${idx}`}
-                          className="ml-3 text-gray-600 text-sm"
-                        >
-                          {option.label}
-                        </label>
-                      </li>
-                    ))}
-                    <li className="flex justify-center flex-col gap-2">
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          id="price-custom"
-                          className="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          onChange={() => {
-                            setFilter((prev) => ({
-                              ...prev,
-                              price: {
-                                is_custom: true,
-                                range: DEFAULT_CUSTOM_PRICE,
-                              },
-                            }));
-
-                            debouncedRefetch();
-                          }}
-                          checked={filter.price.is_custom}
-                        />
-                        <label
-                          htmlFor="price-custom"
-                          className="ml-3 text-gray-600 text-sm"
-                        >
-                          Custom
-                        </label>
-                      </div>
-
-                      <div className="flex justify-between">
-                        <p className="font-medium">Price</p>
-
-                        <div>
-                          {`${formatPrice(filter.price.range[0], 0)} - 
-                          ${formatPrice(filter.price.range[1], 0)}`}
-                        </div>
-                      </div>
-
-                      <Slider
-                        className={cn({
-                          "opacity-50": !filter.price.is_custom,
-                        })}
-                        disabled={!filter.price.is_custom}
-                        onValueChange={(range) => {
-                          setFilter((prev) => ({
-                            ...prev,
-                            price: {
-                              is_custom: true,
-                              range: [range[0], range[1]],
-                            },
-                          }));
-
-                          debouncedRefetch();
-                        }}
-                        value={
-                          filter.price.is_custom
-                            ? filter.price.range
-                            : DEFAULT_CUSTOM_PRICE
-                        }
-                        min={DEFAULT_CUSTOM_PRICE[0]}
-                        defaultValue={DEFAULT_CUSTOM_PRICE}
-                        max={DEFAULT_CUSTOM_PRICE[1]}
-                        // step={5}
-                      />
-                    </li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                <Slider
+                  onValueChange={handleSliderChange}
+                  value={tempSliderValue}
+                  min={DEFAULT_CUSTOM_PRICE[0]}
+                  max={DEFAULT_CUSTOM_PRICE[1]}
+                  step={10}
+                  className="w-full"
+                />
+              </div>
+            </div>
           </div>
 
           {/* product grid */}
