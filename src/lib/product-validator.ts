@@ -23,7 +23,6 @@ export type ProductState = Omit<
   "price"
 > & {
   price: {
-    is_custom: boolean;
     range: [number, number];
   };
 };

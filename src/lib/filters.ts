@@ -27,15 +27,4 @@ export const SIZE_FILTERS = {
   ],
 } as const;
 
-export const PRICE_FILTERS = {
-  id: "price",
-  label: "price",
-  options: [
-    { label: "Any Price", value: [0, 500] },
-    { label: "Under ₹200", value: [0, 200] },
-    { label: "Under ₹400", value: [0, 400] },
-    // custom option defined in JSX
-  ],
-} as const;
-
 export const DEFAULT_CUSTOM_PRICE = [0, 500] as [number, number];
