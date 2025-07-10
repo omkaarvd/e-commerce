@@ -25,18 +25,23 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useMemo, use } from "react";
 
-export default function Home() {
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+};
+
+export default function Home(props: PageProps) {
+  const searchParams = use(props.searchParams);
+
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const initialState = useMemo(() => {
-    const colorParam = searchParams.get("color");
-    const sizeParam = searchParams.get("size");
-    const priceParam = searchParams.get("price");
-    const sortParam = searchParams.get("sort");
+    const colorParam = searchParams.color;
+    const sizeParam = searchParams.size;
+    const priceParam = searchParams.price;
+    const sortParam = searchParams.sort;
 
     return {
       sort: (sortParam as ProductState["sort"]) || "none",
@@ -58,8 +63,8 @@ export default function Home() {
     filterState.price.range
   );
 
-  const query = searchParams.get("query");
-  const page = searchParams.get("page") || "1";
+  const query = searchParams.query;
+  const page = searchParams.page || "1";
 
   // Sync state when URL changes (back/forward navigation)
   useEffect(() => {
