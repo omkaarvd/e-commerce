@@ -25,23 +25,18 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 import { ChevronDown, Filter } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useMemo, use } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, useMemo } from "react";
 
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-};
-
-export default function Home(props: PageProps) {
-  const searchParams = use(props.searchParams);
-
+export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const initialState = useMemo(() => {
-    const colorParam = searchParams.color;
-    const sizeParam = searchParams.size;
-    const priceParam = searchParams.price;
-    const sortParam = searchParams.sort;
+    const colorParam = searchParams.get("color");
+    const sizeParam = searchParams.get("size");
+    const priceParam = searchParams.get("price");
+    const sortParam = searchParams.get("sort");
 
     return {
       sort: (sortParam as ProductState["sort"]) || "none",
@@ -63,8 +58,14 @@ export default function Home(props: PageProps) {
     filterState.price.range
   );
 
-  const query = searchParams.query;
-  const page = searchParams.page || "1";
+  // State to track pending URL updates
+  const [pendingUrlUpdate, setPendingUrlUpdate] = useState<Record<
+    string,
+    string | null
+  > | null>(null);
+
+  const query = searchParams.get("query");
+  const page = searchParams.get("page") || "1";
 
   // Sync state when URL changes (back/forward navigation)
   useEffect(() => {
@@ -104,7 +105,7 @@ export default function Home(props: PageProps) {
 
   const updateSearchParams = useCallback(
     (updates: Record<string, string | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams);
 
       Object.entries(updates).forEach(([key, value]) => {
         if (value) {
@@ -119,6 +120,14 @@ export default function Home(props: PageProps) {
     [router, searchParams]
   );
 
+  // Handle pending URL updates in useEffect to avoid setState during render
+  useEffect(() => {
+    if (pendingUrlUpdate) {
+      updateSearchParams(pendingUrlUpdate);
+      setPendingUrlUpdate(null);
+    }
+  }, [pendingUrlUpdate, updateSearchParams]);
+
   const applyColorAndSizeFilter = ({
     category,
     value,
@@ -132,7 +141,8 @@ export default function Home(props: PageProps) {
         ? prevValues.filter((val) => val !== value)
         : [...prevValues, value];
 
-      updateSearchParams({
+      // Schedule URL update for next render cycle
+      setPendingUrlUpdate({
         [category]: updatedValues.length > 0 ? updatedValues.join(",") : null,
         page: "1",
       });
@@ -153,10 +163,13 @@ export default function Home(props: PageProps) {
         sort: sortValue,
       }));
 
-      updateSearchParams({
-        sort: sortValue !== "none" ? sortValue : null,
-        page: "1",
-      });
+      // Use setTimeout to defer URL update
+      setTimeout(() => {
+        updateSearchParams({
+          sort: sortValue !== "none" ? sortValue : null,
+          page: "1",
+        });
+      }, 0);
 
       debouncedRefetch();
     },
@@ -171,10 +184,13 @@ export default function Home(props: PageProps) {
       price: { range },
     }));
 
-    updateSearchParams({
-      price: `${range[0]}-${range[1]}`,
-      page: "1",
-    });
+    // Use setTimeout to defer URL update
+    setTimeout(() => {
+      updateSearchParams({
+        price: `${range[0]}-${range[1]}`,
+        page: "1",
+      });
+    }, 0);
 
     debouncedRefetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
