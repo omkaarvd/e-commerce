@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { CustomPagination } from "@/components/custom-pagination";
 import EmptyState from "@/components/empty-state";
 import Product from "@/components/product-component";
@@ -28,7 +29,38 @@ import { ChevronDown, Filter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useMemo } from "react";
 
-export default function Home() {
+// Create a loading component for the suspense fallback
+function HomePageSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="flex items-center justify-between gap-4 border-gray-200 py-6">
+        <div className="h-10 bg-gray-200 rounded-md flex-1 max-w-md"></div>
+        <div className="h-10 bg-gray-200 rounded-md w-20"></div>
+      </div>
+      <section className="pb-12 pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
+          <div className="hidden lg:block space-y-8">
+            <div className="space-y-4">
+              <div className="h-6 bg-gray-200 rounded w-20"></div>
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-200 rounded w-24"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {Array.from({ length: 9 }).map((_, idx) => (
+              <ProductSkeleton key={idx} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -343,5 +375,13 @@ export default function Home() {
         </div>
       </section>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<HomePageSkeleton />}>
+      <HomeContent />
+    </Suspense>
   );
 }
